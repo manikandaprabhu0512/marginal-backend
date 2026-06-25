@@ -4,9 +4,10 @@ load_dotenv()
 
 from contextlib import asynccontextmanager
 
-from db.database import init_db
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from db.database import init_db
 from router import chat, conversation, ingest
 
 

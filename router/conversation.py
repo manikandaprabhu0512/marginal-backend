@@ -1,11 +1,12 @@
 from beanie import PydanticObjectId
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
 from db.crud import (db_get_conversation, delete_source_db, get_messages,
                      get_or_create_conversation, get_source, get_sources,
                      list_conversations, save_sources,
                      update_conversation_title)
 from db.models import Conversation
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -14,6 +15,10 @@ class TitleRequest(BaseModel):
 
 class SourceRequest(BaseModel):
     src : list[dict]
+
+@router.get("/health")
+async def get_health():
+    return {"status": "ok"}
 
 @router.get("/conversations")
 async def get_conversation():
