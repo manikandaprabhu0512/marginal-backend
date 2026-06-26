@@ -1,6 +1,7 @@
 from db.crud import save_sources
 from graph.state import GraphState
 from helper.file_type import detect_source_type
+from helper.retry import retry_async
 
 
 async def save_source_node(state: GraphState):
@@ -16,16 +17,15 @@ async def save_source_node(state: GraphState):
             continue
 
         sources.append(
-            {
-                "title": result["title"],
-                "url": result["url"],
-                "source_type": detect_source_type(result["url"]),
-                "vector_ids": result.get("vector_ids", []),
-            }
+            {"title": result["title"],"url": result["url"],"source_type": detect_source_type(result["url"]),"vector_ids": result.get("vector_ids", [])}
         )
 
-    await save_sources(
-        state["conversation_id"],
-        sources,
-    )
+    if sources:
+        await retry_async(
+            lambda: save_sources(
+                state["conversation_id"],
+                sources,
+            )
+        )
+        
     return {}

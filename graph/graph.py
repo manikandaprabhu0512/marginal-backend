@@ -1,15 +1,13 @@
 from langgraph.graph import END, START, StateGraph
 
 from graph.nodes.load_page_node import load_page_node
-from graph.nodes.page_vectorizer import page_vectorizer_node
+from graph.nodes.page_vectorizer_node import page_vectorizer_node
 from graph.nodes.save_source_node import save_source_node
 from graph.nodes.scrape_urls_node import search_node
 from graph.nodes.title_node import title_node
 from graph.state import GraphState
 
 builder = StateGraph(GraphState)
-
-print("Building graph...")
 
 builder.add_node("title", title_node)
 builder.add_node("search", search_node)
