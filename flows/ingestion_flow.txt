@@ -25,15 +25,6 @@ async def run_ingestion_stream(conversation_id: str, query: str):
     yield sse_event("title_generated", {"title": title})
     print("Title updated...\n")
 
-    # content_scraper_agent = await get_content_scraper_agent()
-    # scraper_result = await content_scraper_agent.ainvoke(
-    #     {"messages": [{"role": "user", "content": query}]}
-    # )
-    # scraper_data = parse_agent_json(scraper_result["messages"][-1].content)
-    # url_list = scraper_data.get("pages", [])
-    # yield sse_event("scraping_complete", {"urls_found": len(url_list)})
-    # print("URL Scraped...\n")
-
     # Stage 2: content scraper
     url_list = await search_urls(query)
     yield sse_event("scraping_complete", {"urls_found": len(url_list)})

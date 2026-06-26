@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 
 from beanie import PydanticObjectId
-from db.models import Conversation, Message, Source
+
+from db.models import Conversation, Message, ScrapedURLs, Source
 from tools.vectorize_tool import delete_vectorize
 
 
@@ -143,4 +144,7 @@ async def delete_source_db(conversation_id: str, source_id: PydanticObjectId):
             "id": source_id,
             "url": deleted_url
         }
-    }   
+    }
+
+async def add_scrapedURL(conversation_id: str, query: str, url_list: list[dict]):
+    await ScrapedURLs(conversation_id=conversation_id, query=query, url_list=url_list).insert()
