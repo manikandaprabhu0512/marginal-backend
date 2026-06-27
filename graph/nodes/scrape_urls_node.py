@@ -25,6 +25,8 @@ async def search_node(state: GraphState):
         lambda: add_scrapedURL(state["conversation_id"],state["query"],scraped_urls)
     )
 
+    print("Saved to DB....")
+
     await event_bus.publish(
         Event(
             conversation_id=state["conversation_id"],

@@ -161,3 +161,6 @@ async def delete_source_db(conversation_id: str, source_id: PydanticObjectId):
 
 async def add_scrapedURL(conversation_id: str, query: str, url_list: list[dict]):
     await ScrapedURLs(conversation_id=conversation_id, query=query, url_list=url_list).insert()
+
+async def delete_scraped_urls(conversation_id: str, query: str):
+    await ScrapedURLs.find(ScrapedURLs.conversation_id == conversation_id, ScrapedURLs.query == query).delete()
