@@ -1,28 +1,25 @@
-import asyncio
-
-from graph.state import GraphState
-from helper.event_bus import Event, EventType, event_bus
+from graph.worker_state import WorkerState, WorkerStatus
 from helper.process_page import process_page
-from helper.retry_failed_items import retry_failed_items
+from helper.retry import retry_async
 
 
-async def page_vectorizer_node(state: GraphState):
-    page_results = await retry_failed_items(
-        items=state["pages"],
-        processor=lambda page: process_page(
-            page,
-            state["conversation_id"],
-        ),
-    )
+async def page_vectorizer_node(state: WorkerState):
 
-    await event_bus.publish(
-        Event(
-            conversation_id=state["conversation_id"],
-            type=EventType.PAGE_VECTORIZED,
-            data={},
+    if state["status"] == WorkerStatus.FAILED:
+        return {}
+
+    try:
+        page_result = await retry_async(
+            lambda: process_page(state["page"],state["conversation_id"])
         )
-    )
 
-    return {
-        "page_results": page_results,
-    }
+        return {
+            "page_result": page_result,
+        }
+
+    except Exception as e:
+
+        return {
+            "status": WorkerStatus.FAILED,
+            "error": str(e),
+        }

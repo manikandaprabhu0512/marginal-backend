@@ -1,31 +1,26 @@
-from db.crud import save_sources
-from graph.state import GraphState
-from helper.file_type import detect_source_type
+from db.crud import save_source
+from graph.worker_state import WorkerState, WorkerStatus
 from helper.retry import retry_async
 
 
-async def save_source_node(state: GraphState):
-    sources = []
+async def save_source_node(state: WorkerState):
 
-    for result in state["page_results"]:
+    if state["status"] == WorkerStatus.FAILED:
+        return {}
 
-        if isinstance(result, Exception):
-            print(f"Page processing failed: {result}")
-            continue
+    try:
 
-        if not result["title"] or not result["url"]:
-            continue
-
-        sources.append(
-            {"title": result["title"],"url": result["url"],"source_type": detect_source_type(result["url"]),"vector_ids": result.get("vector_ids", [])}
-        )
-
-    if sources:
         await retry_async(
-            lambda: save_sources(
-                state["conversation_id"],
-                sources,
-            )
+            lambda: save_source(conversation_id=state["conversation_id"],source=state["page_result"])
         )
-        
-    return {}
+
+        return {
+            "status": WorkerStatus.SUCCESS,
+        }
+
+    except Exception as e:
+
+        return {
+            "status": WorkerStatus.FAILED,
+            "error": str(e),
+        }

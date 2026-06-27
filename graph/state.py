@@ -1,11 +1,8 @@
-from beanie import Document
-from typing_extensions import TypedDict
+from typing import TypedDict
 
 
 class GraphState(TypedDict):
     conversation_id: str
     query: str
 
-    url_list: list[str]
-    pages: list[Document]
-    page_results: list[dict]
+    url_list: list[dict]

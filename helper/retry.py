@@ -19,6 +19,7 @@ async def retry_async(
 
         except Exception as e:
             last_exception = e
+            print(f"Attempt {attempt} failed: {e}")
 
             if attempt == retries:
                 break

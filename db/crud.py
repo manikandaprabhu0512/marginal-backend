@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from beanie import PydanticObjectId
 
 from db.models import Conversation, Message, ScrapedURLs, Source
+from helper.file_type import detect_source_type
 from tools.vectorize_tool import delete_vectorize
 
 
@@ -80,6 +81,18 @@ async def save_sources(conversation_id: str, sources: list[dict]):
         await Source.insert_many(docs) 
         count = await Source.find(Source.conversation_id == conversation_id).count()
         await update_source_count(conversation_id, count)
+
+async def save_source(conversation_id: str,source: dict):
+    await Source(
+        conversation_id=conversation_id,
+        title=source["title"],
+        url=source["url"],
+        source_type=detect_source_type(source["url"]),
+        vector_ids=source.get("vector_ids", []),
+    ).insert()
+
+    count = await Source.find(Source.conversation_id == conversation_id).count()
+    await update_source_count(conversation_id, count)
 
 async def get_sources(conversation_id: str) -> list[dict]:
     sources = await Source.find(Source.conversation_id == conversation_id).to_list()   
