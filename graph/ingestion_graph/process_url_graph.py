@@ -1,9 +1,10 @@
 from langgraph.graph import END, START, StateGraph
 
-from graph.nodes.load_page_node import load_page_node
-from graph.nodes.page_vectorizer_node import page_vectorizer_node
-from graph.nodes.save_source_node import save_source_node
-from graph.worker_state import WorkerState
+from graph.ingestion_graph.nodes.load_page_node import load_page_node
+from graph.ingestion_graph.nodes.page_vectorizer_node import \
+    page_vectorizer_node
+from graph.ingestion_graph.nodes.save_source_node import save_source_node
+from graph.ingestion_graph.worker_state import WorkerState
 
 builder = StateGraph(WorkerState)
 

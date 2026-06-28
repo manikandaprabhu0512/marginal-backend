@@ -2,8 +2,9 @@ import json
 
 from agents.title_agent import get_title_agent
 from db.crud import db_get_conversation, update_conversation_title
-from graph.state import GraphState
-from helper.event_bus import Event, EventType, event_bus
+from graph.event_bus import Event, event_bus
+from graph.events.ingestion_events import IngestionEventType
+from graph.ingestion_graph.state import GraphState
 from helper.json_parser import parse_agent_json
 from helper.retry import retry_async
 
@@ -34,7 +35,7 @@ async def title_node(state: GraphState):
     await event_bus.publish(
         Event(
             conversation_id=state["conversation_id"],
-            type=EventType.TITLE_GENERATED,
+            type=IngestionEventType.TITLE_GENERATED,
             data={
                 "title": title,
             },

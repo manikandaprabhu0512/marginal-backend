@@ -1,4 +1,4 @@
-from graph.worker_state import WorkerState, WorkerStatus
+from graph.ingestion_graph.worker_state import WorkerState, WorkerStatus
 from helper.process_page import process_page
 from helper.retry import retry_async
 

@@ -2,11 +2,12 @@ import asyncio
 import json
 import re
 
+from fastapi import UploadFile
+
 from agents.intent_classifier_agent import get_intent_classifier_agent
 from db.crud import get_or_create_conversation, save_message, save_sources
-from fastapi import UploadFile
 from flows.add_source_flow import URL_PATTERN, run_add_source
-from flows.chat_flow import run_chat
+from graph.chat_graph.chat_event_stream import chat_event_stream
 from helper.json_parser import parse_agent_json
 from helper.serializer import _message_to_dict
 from helper.sse_event import sse_event
@@ -92,7 +93,12 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
             return
 
         enriched_message = f"{message} [Context: user just added these sources: {titles}]"
-        async for item in run_chat(conversation_id, enriched_message, excluded, skip_save_user=True):
+        async for item in chat_event_stream(
+            conversation_id=conversation_id,
+            message=enriched_message,
+            excluded_urls=excluded,
+            skip_save_user=False,
+        ):
             yield item
 
         return
@@ -110,5 +116,12 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
         yield sse_event("done", {})
         return
 
-    async for item in run_chat(conversation_id, message, excluded, False):
+    
+    print("Running chat...")
+    async for item in chat_event_stream(
+        conversation_id=conversation_id,
+        message=message,
+        excluded_urls=excluded,
+        skip_save_user=False,
+    ):
         yield item

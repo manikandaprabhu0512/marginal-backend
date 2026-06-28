@@ -1,9 +1,9 @@
-from graph.graph import graph
-from helper.event_bus import Event, EventType, event_bus
+from graph.event_bus import Event, event_bus
+from graph.events.ingestion_events import IngestionEventType
+from graph.ingestion_graph.ingestion_graph import graph
 
 
 async def consume_graph(conversation_id: str, query: str):
-    print("Called Consume_graph...")
 
     async for _ in graph.astream(
         {"conversation_id": conversation_id,"query": query}
@@ -13,7 +13,7 @@ async def consume_graph(conversation_id: str, query: str):
     await event_bus.publish(
         Event(
             conversation_id=conversation_id,
-            type=EventType.INGESTION_COMPLETED,
+            type=IngestionEventType.INGESTION_COMPLETED,
             data={}
         )
     )

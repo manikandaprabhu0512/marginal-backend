@@ -2,9 +2,9 @@ import asyncio
 
 from background.cleanup import cleanup_ingestion
 from background.manager import background_manager
-from graph.process_url_graph import process_url_graph
-from graph.state import GraphState
-from graph.worker_state import WorkerStatus
+from graph.ingestion_graph.process_url_graph import process_url_graph
+from graph.ingestion_graph.state import GraphState
+from graph.ingestion_graph.worker_state import WorkerStatus
 
 
 async def process_urls_node(state: GraphState):

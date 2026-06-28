@@ -1,9 +1,9 @@
 from langgraph.graph import END, START, StateGraph
 
-from graph.nodes.process_urls_node import process_urls_node
-from graph.nodes.scrape_urls_node import search_node
-from graph.nodes.title_node import title_node
-from graph.state import GraphState
+from graph.ingestion_graph.nodes.process_urls_node import process_urls_node
+from graph.ingestion_graph.nodes.scrape_urls_node import search_node
+from graph.ingestion_graph.nodes.title_node import title_node
+from graph.ingestion_graph.state import GraphState
 
 builder = StateGraph(GraphState)
 

@@ -6,21 +6,10 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-class EventType(str, Enum):
-    TITLE_GENERATED = "title_generated"
-    SEARCH_STARTED = "search_started"
-    SEARCH_COMPLETED = "search_completed"
-    PAGE_LOADED = "page_loaded"
-    PAGE_SUMMARIZED = "page_summarized"
-    PAGE_VECTORIZED = "page_vectorized"
-    INGESTION_COMPLETED = "ingestion_completed"
-    ERROR = "error"
-
-
 class Event(BaseModel):
     conversation_id: str
 
-    type: EventType
+    type: str | Enum
 
     data: dict[str, Any] = Field(default_factory=dict)
 

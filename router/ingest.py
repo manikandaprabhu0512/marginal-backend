@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from db.crud import get_or_create_conversation
-from graph.event_stream import event_stream
+from graph.ingestion_graph.ingestion_event_stream import ingestion_event_stream
 
 router = APIRouter()
 
@@ -16,7 +16,7 @@ async def first_query(conversation_id: str, body: FirstQueryRequest):
     await get_or_create_conversation(conversation_id)
 
     return StreamingResponse(
-        event_stream(conversation_id, body.query),
+        ingestion_event_stream(conversation_id, body.query),
         media_type="text/event-stream",
         headers = {
             "Cache-Control": "no-cache",

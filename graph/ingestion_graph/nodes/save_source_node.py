@@ -1,5 +1,5 @@
 from db.crud import save_source
-from graph.worker_state import WorkerState, WorkerStatus
+from graph.ingestion_graph.worker_state import WorkerState, WorkerStatus
 from helper.retry import retry_async
 
 
