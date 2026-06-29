@@ -1,4 +1,6 @@
 from graph.chat_graph.chat_graph import chat_graph
+from graph.event_bus import Event, event_bus
+from graph.events.chat_events import ChatEventType
 
 
 async def consume_chat_graph(
@@ -7,14 +9,13 @@ async def consume_chat_graph(
     excluded_urls: list[str] | None = None,
     skip_save_user: bool = False,
 ):
-
     config = {
         "configurable": {
             "thread_id": conversation_id,
         }
     }
 
-    async for _ in chat_graph.astream(
+    async for event in chat_graph.astream(
         {
             "conversation_id": conversation_id,
             "message": message,
@@ -24,4 +25,12 @@ async def consume_chat_graph(
         },
         config=config,
     ):
-        pass
+        if "__interrupt__" in event:
+            await event_bus.publish(
+                Event(
+                    conversation_id=conversation_id,
+                    type=ChatEventType.INTERRUPTED,
+                    data=event["__interrupt__"][0].value,
+                )
+            )
+            return

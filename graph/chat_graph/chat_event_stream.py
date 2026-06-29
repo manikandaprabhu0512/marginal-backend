@@ -12,7 +12,6 @@ async def chat_event_stream(
     excluded_urls: list[str] | None = None,
     skip_save_user: bool = False,
 ):
-
     graph_task = asyncio.create_task(
         consume_chat_graph(
             conversation_id=conversation_id,
@@ -23,13 +22,15 @@ async def chat_event_stream(
     )
 
     async for event in event_bus.subscribe(conversation_id):
-
         yield sse_event(
             event.type.value,
             event.data,
         )
 
-        if event.type == ChatEventType.ANSWER_READY:
+        if event.type in (
+            ChatEventType.ANSWER_READY,
+            ChatEventType.INTERRUPTED,
+        ):
             break
 
     await graph_task

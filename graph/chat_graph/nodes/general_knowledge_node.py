@@ -24,8 +24,7 @@ async def general_knowledge_node(state: ChatState):
     result = await retry_async(
         lambda: general_knowledge_agent.ainvoke({"messages": [{"role": "user", "content": general_knowledge_payload}]})
     )
+    print(result)
+    answer = result["messages"][-1].content
 
-    data = parse_agent_json(result["messages"][-1].content)
-    print(data)
-
-    return {"answer": data["answer"], "source": "general_knowledge"}
+    return {"answer": answer, "source": "general_knowledge"}
