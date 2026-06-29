@@ -25,7 +25,6 @@ async def smaller_model_node(state: ChatState):
             "query": state["message"],
             "context": state["context"],
             "history": state["history"],
-            "excluded_urls": state["excluded_urls"],
         }
     )
 

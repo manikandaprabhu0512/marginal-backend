@@ -8,6 +8,10 @@ class ChatState(TypedDict):
 
     message: str
 
+    query_type: str
+
+    rewritten_query: str
+
     excluded_urls: list[str] | None
 
     skip_save_user: bool
@@ -18,13 +22,13 @@ class ChatState(TypedDict):
 
     context: str
 
-    answer: str
+    answer: str | None
 
-    source: str
+    source: str | None
 
     confidence: float | None
 
-    model_used: str
+    model_used: str | None
 
     assistant_message: Message | None
 

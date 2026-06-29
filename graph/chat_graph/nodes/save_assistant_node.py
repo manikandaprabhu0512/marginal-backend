@@ -10,7 +10,7 @@ async def save_assistant_node(state: ChatState):
 
     answer = state["answer"]
 
-    if state["source"] == "general_knowledge":
+    if state.get("source") == "general_knowledge":
         answer += (
             "\n\n"
             "*Note: This answer is based on general knowledge and not from your uploaded sources.*"
@@ -18,10 +18,10 @@ async def save_assistant_node(state: ChatState):
 
     assistant_message = await retry_async(
         lambda: save_message(
-        conversation_id=state["conversation_id"],
-        role="assistant",
-        content=answer,
-    )
+            conversation_id=state["conversation_id"],
+            role="assistant",
+            content=answer,
+        )
     )
 
     await event_bus.publish(
@@ -30,16 +30,16 @@ async def save_assistant_node(state: ChatState):
             type=ChatEventType.ANSWER_READY,
             data={
                 "conversation_id": state["conversation_id"],
-                "user": _message_to_dict(state["user_message"]),
+                "user": state["user_message"],
                 "assistant": _message_to_dict(assistant_message),
                 "confidence": state.get("confidence"),
-                "model_used": state["model_used"],
-                "source": state["source"],
+                "model_used": state.get("model_used"),
+                "source": state.get("source"),
             },
         )
     )
 
     return {
-        "assistant_message": assistant_message,
+        "assistant_message": _message_to_dict(assistant_message),
         "answer": answer,
     }

@@ -1,7 +1,7 @@
 from db.crud import add_scrapedURL
 from db.models import ScrapedURLs
 from graph.event_bus import Event, event_bus
-from graph.events.chat_events import ChatEventType
+from graph.events.ingestion_events import IngestionEventType
 from graph.ingestion_graph.state import GraphState
 from helper.retry import retry_async
 from tools.content_scraper_tool import search_urls
@@ -31,7 +31,7 @@ async def search_node(state: GraphState):
     await event_bus.publish(
         Event(
             conversation_id=state["conversation_id"],
-            type=ChatEventType.SEARCH_COMPLETED,
+            type=IngestionEventType.SEARCH_COMPLETED,
             data={
                 "urls_found": len(scraped_urls),
             },

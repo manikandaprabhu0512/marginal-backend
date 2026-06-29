@@ -1,5 +1,6 @@
 from db.crud import get_last_message, save_message
 from graph.chat_graph.chat_state import ChatState
+from helper.serializer import _message_to_dict
 
 
 async def save_user_node(state: ChatState):
@@ -16,6 +17,8 @@ async def save_user_node(state: ChatState):
             state["message"],
         )
 
+    print("User: ", user_message)
+
     return {
-        "user_message": user_message,
+        "user_message": _message_to_dict(user_message),
     }
