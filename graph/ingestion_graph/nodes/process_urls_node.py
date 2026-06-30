@@ -29,6 +29,5 @@ async def process_urls_node(state: GraphState):
     background_manager.submit(
         cleanup_ingestion(state["conversation_id"],state["query"])
     )
-    print("deleted from db...")
 
     return {}

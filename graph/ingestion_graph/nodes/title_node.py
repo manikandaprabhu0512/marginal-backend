@@ -20,7 +20,7 @@ async def title_node(state: GraphState):
 
     result = await retry_async(
         lambda: title_agent.ainvoke(
-            {"messages": [{"role": "user", "content": json.dumps({"query": state["query"]})}]}
+            {"messages": [{"role": "user", "content": json.dumps({"query": state["rewritten_query"]})}]}
         )
     )
 
