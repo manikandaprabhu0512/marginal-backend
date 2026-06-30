@@ -16,7 +16,7 @@ async def retrieve_context_node(state: ChatState):
     )
 
     context = await retry_async(
-        lambda: retrieve_context(state["conversation_id"], state["message"], state["excluded_urls"])
+        lambda: retrieve_context(state["conversation_id"], state["rewritten_query"], state["excluded_urls"])
     )
 
     return {

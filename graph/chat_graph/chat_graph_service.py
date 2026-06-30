@@ -13,11 +13,10 @@ async def resume_chat_graph(
         }
     }
 
-    async for event in chat_graph.astream(
+    async for _ in chat_graph.astream(
         Command(resume=decision),
         config=config,
     ):
-        print("=" * 100)
-        print(event)
+        pass
 
     return

@@ -7,7 +7,6 @@ from db.crud import (db_get_conversation, delete_source_db, get_messages,
                      list_conversations, save_sources,
                      update_conversation_title)
 from db.models import Conversation
-from graph.chat_graph.chat_graph_service import resume_chat_graph
 
 router = APIRouter()
 
@@ -16,9 +15,6 @@ class TitleRequest(BaseModel):
 
 class SourceRequest(BaseModel):
     src : list[dict]
-
-class ResumeRequest(BaseModel):
-    decision: str
 
 @router.get("/health")
 async def get_health():
@@ -66,17 +62,6 @@ async def add_sources(conversation_id: str, body: SourceRequest):
 @router.delete("/conversations/{conversation_id}/sources/{source_id}")
 async def delete_source(conversation_id: str, source_id: PydanticObjectId):
     return await delete_source_db(conversation_id, source_id) 
-
-@router.post("/conversations/{conversation_id}/resume")
-async def resume_chat_flow(conversation_id: str, body: ResumeRequest):
-    await resume_chat_graph(
-        conversation_id=conversation_id,
-        decision=body.decision,
-    )
-
-    return {
-        "success": True,
-    }
 
 # @router.delete("/conversations/{conversation_id}")
 # async def delete_conversation(conversation_id: str):

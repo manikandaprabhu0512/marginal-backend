@@ -1,3 +1,5 @@
+from background.cleanup_checkpoint import cleanup_checkpoints
+from background.manager import background_manager
 from graph.chat_graph.chat_graph import chat_graph
 from graph.event_bus import Event, event_bus
 from graph.events.chat_events import ChatEventType
@@ -34,3 +36,7 @@ async def consume_chat_graph(
                 )
             )
             return
+        
+    background_manager.submit(
+        cleanup_checkpoints(conversation_id)
+    )
