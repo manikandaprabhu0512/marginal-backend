@@ -28,6 +28,7 @@ async def query_understanding_node(state: ChatState):
     )
 
     data = parse_agent_json(result["messages"][-1].content)
+    print(data)
 
     return {
         "query_type": data["type"],

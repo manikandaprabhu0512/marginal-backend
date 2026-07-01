@@ -6,4 +6,4 @@ class GraphState(TypedDict):
     query: str
     rewritten_query: str
 
-    url_list: list[dict]
+    url_list: list[dict] | None

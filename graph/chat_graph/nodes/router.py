@@ -24,6 +24,9 @@ def route_after_off_topic_decision(state):
 
         case "continue_general":
             return "general_knowledge"
+        
+        case "add_sources":
+            return "add_sources"
 
         case _:
             raise ValueError(f"Unknown decision: {state['decision']}")

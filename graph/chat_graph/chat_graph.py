@@ -1,6 +1,7 @@
 from langgraph.graph import END, START, StateGraph
 
 from graph.chat_graph.chat_state import ChatState
+from graph.chat_graph.nodes.add_sources_node import add_sources_node
 from graph.chat_graph.nodes.confidence_node import confidence_node
 from graph.chat_graph.nodes.general_knowledge_node import \
     general_knowledge_node
@@ -26,6 +27,7 @@ builder.add_node("history", history_node)
 builder.add_node("save_user", save_user_node)
 builder.add_node("query_understanding", query_understanding_node)
 builder.add_node("off_topic_decision", off_topic_decision_node)
+builder.add_node("add_sources", add_sources_node)
 builder.add_node("retrieve_context", retrieve_context_node)
 builder.add_node("general_knowledge", general_knowledge_node)
 builder.add_node("smaller_model", smaller_model_node)
@@ -52,8 +54,12 @@ builder.add_conditional_edges(
     route_after_off_topic_decision,
     {
         "general_knowledge": "general_knowledge",
+        "add_sources": "add_sources",
+        "create_notebook": END,  # TODO
     },
 )
+
+builder.add_edge("add_sources", "retrieve_context")
 
 builder.add_edge("retrieve_context", "smaller_model")
 
