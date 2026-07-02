@@ -27,6 +27,9 @@ def route_after_off_topic_decision(state):
         
         case "add_sources":
             return "add_sources"
+        
+        case "create_notebook":
+            return "create_notebook"
 
         case _:
             raise ValueError(f"Unknown decision: {state['decision']}")

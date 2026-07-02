@@ -6,6 +6,7 @@ class ChatEventType(str, Enum):
     UNDERSTANDING_QUERY = "understanding_query"
     GENERATING_ANSWER = "generating_answer"
     INTERRUPTED = "interrupted"
+    CREATED_NOTEBOOK = "create_notebook"
 
     RETRIEVING_CONTEXT = "retrieving_context"
 

@@ -30,6 +30,7 @@ async def chat_event_stream(
         if event.type in (
             ChatEventType.ANSWER_READY,
             ChatEventType.INTERRUPTED,
+            ChatEventType.CREATED_NOTEBOOK
         ):
             break
 

@@ -22,6 +22,7 @@ async def chat_event_resume_stream(
 
         if event.type in (
             ChatEventType.ANSWER_READY,
+            ChatEventType.CREATED_NOTEBOOK
         ):
             break
 

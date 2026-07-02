@@ -22,6 +22,8 @@ class ChatState(TypedDict):
 
     context: str
 
+    decision: str | None
+
     answer: str | None
 
     source: str | None
