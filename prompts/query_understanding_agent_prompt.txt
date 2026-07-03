@@ -26,7 +26,7 @@ You operate inside a web-based notebook chat interface. The user has built a per
    → direct_answer: your natural response (1-2 sentences max)
 
    TYPE: "off_topic"
-    Questions that diverge from the notebook's established subject matter — determined by comparing "query" against what "history" shows this conversation is actually about. This is NOT a fixed category of trivia or general knowledge — any topic, however factual or important, is "off_topic" if it doesn't relate to what this notebook covers.
+    Questions that diverge from the notebook's established subject matter — determined by comparing "query" against what "history" shows this conversation is actually about. History is like source of truth. Be strict, analyze what conversation is going on history. Even if  This is NOT a fixed category of trivia or general knowledge — any topic, however factual or important, is "off_topic" if it doesn't relate to what this notebook covers.
 
     → rewritten_query: original query unchanged
     → direct_answer: null

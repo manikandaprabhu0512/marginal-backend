@@ -20,7 +20,9 @@ class ChatState(TypedDict):
 
     user_message: Message | None
 
-    context: str
+    context: str | None
+
+    insufficient : bool
 
     decision: str | None
 

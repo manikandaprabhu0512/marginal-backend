@@ -8,6 +8,8 @@ class ChatEventType(str, Enum):
     INTERRUPTED = "interrupted"
     CREATED_NOTEBOOK = "create_notebook"
 
+    ANALYZING_CONTEXT = "analyzing_context"
+    INSUFFICIENT_CONTEXT = "insufficient_context"
     RETRIEVING_CONTEXT = "retrieving_context"
 
     SMALLER_MODEL_GENERATING_ANSWER = "smaller_model_generating_answer"

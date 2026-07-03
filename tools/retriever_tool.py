@@ -1,5 +1,6 @@
-from config.pincone_config import get_vector_store
 from langchain.tools import tool
+
+from config.pincone_config import get_vector_store
 
 
 async def retrieve_context(conversation_id: str, query: str, excluded_urls: list[str] = None) -> str:
@@ -8,6 +9,7 @@ async def retrieve_context(conversation_id: str, query: str, excluded_urls: list
     filter_dict = {"url": {"$nin": excluded_urls}} if excluded_urls else None
     print(filter_dict)
     docs = await vector_store.asimilarity_search(query=query, k=4, filter=filter_dict)
+    print("doc: ", docs)
     return "\n\n".join(doc.page_content for doc in docs)
 
 
@@ -21,6 +23,7 @@ def make_retriever_tool(conversation_id: str):
         filter_dict = {"url": {"$nin": excluded_urls}} if excluded_urls else None
         print(filter_dict)
         docs = await vector_store.asimilarity_search(query=query, k=4, filter=filter_dict)
+        print("doc: ", docs)
         return "\n\n".join(doc.page_content for doc in docs)
 
     return retriever_tool
