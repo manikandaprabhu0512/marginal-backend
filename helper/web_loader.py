@@ -19,4 +19,5 @@ async def web_loader_tool(link: str):
         return clean_text
 
     except Exception as e:
+        print(f"ERROR: failed to load {link} - {str(e)}")
         return f"ERROR: failed to load {link} - {str(e)}"

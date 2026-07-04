@@ -10,18 +10,13 @@ from helper.retry import retry_async
 
 
 async def title_node(state: GraphState):
-    print("Title Node Called...")
 
     conversation = await db_get_conversation(state["conversation_id"])
-
-    print("Recieved Conversation...")
 
     if conversation.title != "Untitled Notebook":
         return {}
 
     title_agent = get_title_agent()
-
-    print("Got Title Agent...")
 
     result = await retry_async(
         lambda: title_agent.ainvoke(
@@ -29,19 +24,13 @@ async def title_node(state: GraphState):
         )
     )
 
-    print("Result Generated...")
-
     title_data = parse_agent_json(result["messages"][-1].content)
 
     title = title_data.get("title","Untitled Notebook")
 
-    print("Title: ", title)
-
     await retry_async(
         lambda: update_conversation_title(state["conversation_id"],title)
     )
-
-    print("Title Updated...")
 
     await event_bus.publish(
         Event(
