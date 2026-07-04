@@ -42,6 +42,4 @@ async def title_node(state: GraphState):
         )
     )
 
-    print("Event Published...")
-
     return {}

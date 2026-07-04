@@ -29,7 +29,6 @@ class EventBus:
         return self._queues[conversation_id]
 
     async def publish(self, event: Event):
-        print(f"Publishing event: {event.data}")
         queue = self._get_queue(event.conversation_id)
         await queue.put(event)
 

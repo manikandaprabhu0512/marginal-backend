@@ -2,10 +2,6 @@ CONFIDENCE_THRESHOLD = 0.75
 
 def router_after_context_analyzer(state):
 
-    print("Checking State Status...")
-    print(state["insufficient"])
-    print("Checking State Status...")
-
     if state["insufficient"] is True:
         return "off_topic_decision"
 

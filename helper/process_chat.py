@@ -116,8 +116,6 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
         yield sse_event("done", {})
         return
 
-    
-    print("Running chat...")
     async for item in chat_event_stream(
         conversation_id=conversation_id,
         message=message,

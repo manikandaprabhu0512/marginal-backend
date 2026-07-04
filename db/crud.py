@@ -133,8 +133,6 @@ async def delete_pinecone_db(conversation_id: str, vector_ids: list[str]):
 async def delete_source_db(conversation_id: str, source_id: PydanticObjectId):
     source_doc = await Source.find_one(Source.id == source_id)
 
-    print("Source: ", source_doc)
-
     if not source_doc:
         return {"status": "error", "message": "Source not found"}
 

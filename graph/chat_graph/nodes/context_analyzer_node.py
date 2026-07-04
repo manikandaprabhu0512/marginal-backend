@@ -5,7 +5,6 @@ from graph.events.chat_events import ChatEventType
 
 async def context_analyzser(state: ChatState):
     context = state["context"]
-    print("Context: ", context)
 
     await event_bus.publish(
         Event(

@@ -10,9 +10,6 @@ async def add_sources_node(state: ChatState):
         "url_list" : None
     }
 
-    print("Before invoke:", ingestion_state)
-    print("Keys:", ingestion_state.keys())
-
     await add_sources_graph.ainvoke(ingestion_state)
 
     return {}

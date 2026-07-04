@@ -17,8 +17,6 @@ async def save_user_node(state: ChatState):
             state["message"],
         )
 
-    print("User: ", user_message)
-
     return {
         "user_message": _message_to_dict(user_message),
     }

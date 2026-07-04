@@ -16,7 +16,6 @@ async def process_page(page: dict, conversation_id: str) -> dict:
             result["vector_ids"] = vector_ids
 
     except Exception as e:
-        print(f"Vectorize failed for {page['url']}: {e}")
         result["storage"] = {"status": "failed", "reason": str(e)}
     
     return result

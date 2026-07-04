@@ -8,9 +8,6 @@ from helper.json_parser import parse_agent_json
 
 
 async def ingestion_query_rewriter_node(state: GraphState):
-    print("state: ", state)
-    print(type(state))
-    print(state.keys())
     rewriter = get_ingestion_query_rewriter()
     rewrite_result = await rewriter.ainvoke({
         "messages": [{"role": "user", "content": json.dumps({"query": state["query"]})}]
