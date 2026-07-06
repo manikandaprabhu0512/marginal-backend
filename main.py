@@ -22,7 +22,7 @@ app = FastAPI(lifespan=lifespan)
 origins = [
     "http://localhost",
     "http://localhost:5173",
-    "https://take-your-interview-front-end.vercel.app"
+    "https://marginal-frontend-iota.vercel.app"
 ]
 
 app.add_middleware(

@@ -3,7 +3,7 @@ from langgraph.graph import END, START, StateGraph
 from graph.chat_graph.chat_state import ChatState
 from graph.chat_graph.nodes.add_sources_node import add_sources_node
 from graph.chat_graph.nodes.confidence_node import confidence_node
-from graph.chat_graph.nodes.context_analyzer_node import context_analyzser
+from graph.chat_graph.nodes.context_analyzer_node import context_analyzer
 from graph.chat_graph.nodes.create_notebook_node import create_notebook_node
 from graph.chat_graph.nodes.general_knowledge_node import \
     general_knowledge_node
@@ -33,7 +33,7 @@ builder.add_node("off_topic_decision", off_topic_decision_node)
 builder.add_node("add_sources", add_sources_node)
 builder.add_node("create_notebook", create_notebook_node)
 builder.add_node("retrieve_context", retrieve_context_node)
-builder.add_node("context_analyzer", context_analyzser)
+builder.add_node("context_analyzer", context_analyzer)
 builder.add_node("general_knowledge", general_knowledge_node)
 builder.add_node("smaller_model", smaller_model_node)
 builder.add_node("confidence", confidence_node)
