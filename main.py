@@ -7,8 +7,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import telemetry.instrumentation
 from db.database import init_db
 from router import chat, conversation, ingest
+from telemetry.instrumentation import tracer
 
 
 @asynccontextmanager

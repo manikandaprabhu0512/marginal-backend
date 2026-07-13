@@ -1,25 +1,27 @@
 from graph.ingestion_graph.worker_state import WorkerState, WorkerStatus
 from helper.process_page import process_page
 from helper.retry import retry_async
-
+from telemetry.instrumentation import tracer
 
 async def page_vectorizer_node(state: WorkerState):
 
-    if state["status"] == WorkerStatus.FAILED:
-        return {}
+    with tracer.start_as_current_span("Page Vectorizer") as span:
 
-    try:
-        page_result = await retry_async(
-            lambda: process_page(state["page"],state["conversation_id"])
-        )
+        if state["status"] == WorkerStatus.FAILED:
+            return {}
 
-        return {
-            "page_result": page_result,
-        }
+        try:
+            page_result = await retry_async(
+                lambda: process_page(state["page"],state["conversation_id"])
+            )
 
-    except Exception as e:
+            return {
+                "page_result": page_result,
+            }
 
-        return {
-            "status": WorkerStatus.FAILED,
-            "error": str(e),
-        }
+        except Exception as e:
+
+            return {
+                "status": WorkerStatus.FAILED,
+                "error": str(e),
+            }

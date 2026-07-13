@@ -1,13 +1,20 @@
 from langchain.tools import tool
 
 from config.pincone_config import get_vector_store
+from telemetry.instrumentation import tracer
 
 
 async def retrieve_context(conversation_id: str, query: str, excluded_urls: list[str] = None) -> str:
     """Direct Python call — retrieves context from Pinecone."""
-    vector_store = get_vector_store(conversation_id)
+
+    with tracer.start_as_current_span("Vector Store"):
+        vector_store = get_vector_store(conversation_id)
+
     filter_dict = {"url": {"$nin": excluded_urls}} if excluded_urls else None
-    docs = await vector_store.asimilarity_search(query=query, k=4, filter=filter_dict)
+
+    with tracer.start_as_current_span("Similarity Search"):
+        docs = await vector_store.asimilarity_search(query=query, k=4, filter=filter_dict)
+
     return "\n\n".join(doc.page_content for doc in docs)
 
 
