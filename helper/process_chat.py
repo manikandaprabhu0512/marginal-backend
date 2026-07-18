@@ -18,6 +18,14 @@ from telemetry.metrics import chat_duration, chat_requests
 async def process_chat(conversation_id: str, message: str, files: list[UploadFile], excluded_urls: str):
 
     start = time.perf_counter()
+
+    print("Message: ", message)
+    print("Files: ", files)
+    if (not message or not message.strip()) and not files:
+        yield sse_event("error", {"message": "No message or file both are not found. Please enter one to move forward"});
+        yield sse_event("done", {})
+        return
+
     
     try:
         if len(message.strip()) > 200:
@@ -33,6 +41,8 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
         excluded = json.loads(excluded_urls)
         yield sse_event("checking_for_files", {})
         has_files = files and any(f.filename for f in files)
+
+        print("Files found:", has_files)
 
         if has_files:
             user_message = await save_message(conversation_id, "user", message)
@@ -62,7 +72,7 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
                 yield sse_event("partial_success", {"stored": stored, "failed": failed, "count": len(stored)})
             
             sources = [
-                {"title": r["title"], "url": r["url"], "source_type": r["source_type"]}
+                {"title": r["title"], "url": r["url"], "source_type": r["source_type"], "vector_ids":r["vector_ids"]}
                 for r in stored
             ]
             await save_sources(conversation_id, sources)

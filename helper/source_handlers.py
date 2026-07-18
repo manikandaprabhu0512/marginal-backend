@@ -3,6 +3,7 @@ import re
 import httpx
 from bs4 import BeautifulSoup
 from fastapi import UploadFile
+
 from helper.load_page import load_page
 from helper.text_extractors import (EXTRACTORS, _extract_pdf, _get_ext,
                                     _title_from_filename)
@@ -27,8 +28,8 @@ async def _process_file(conversation_id: str, file: UploadFile) -> dict:
     url = f"file://{filename}"
     source_type = "pdf"
 
-    await vectorize_page(conversation_id, url, title, text)
-    return {"status": "stored", "title": title, "url": url, "source_type": source_type}
+    vectorIds = await vectorize_page(conversation_id, url, title, text)
+    return {"status": "stored", "title": title, "url": url, "source_type": source_type, "vector_ids": vectorIds}
 
 
 async def _process_url(conversation_id: str, url: str) -> dict:
