@@ -66,8 +66,13 @@ async def get_history(conversation_id: str) -> list[dict]:
     return [{"role": m.role, "content": m.content} for m in messages]
 
 
-async def save_message(conversation_id: str, role: str, content: str):
-    message = await Message(conversation_id=conversation_id, role=role, content=content).insert()
+async def save_message(conversation_id: str, role: str, content: str, file_url: str | None = None):
+    message = await Message(
+        conversation_id=conversation_id,
+        role=role,
+        content=content,
+        file_url=file_url,
+    ).insert()
     await update_conversation_activity(conversation_id)
     return message
 
@@ -109,7 +114,13 @@ async def get_messages(conversation_id: str) -> list[dict]:
         .to_list()
     )
     return [
-        {"id": str(m.id), "role": m.role, "content": m.content, "created_at": m.created_at}
+        {
+            "id": str(m.id),
+            "role": m.role,
+            "content": m.content,
+            "file_url": m.file_url,
+            "created_at": m.created_at,
+        }
         for m in messages
     ]
 

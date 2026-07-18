@@ -19,6 +19,7 @@ class Message(Document):
     conversation_id: str
     role: str
     content: str
+    file_url: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:

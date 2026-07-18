@@ -3,8 +3,11 @@ import json
 import re
 import time
 
+from cloudinary.exceptions import Error
+from cloudinary.uploader import upload
 from fastapi import UploadFile
 
+import config.cloudinary_config
 from agents.intent_classifier_agent import get_intent_classifier_agent
 from db.crud import get_or_create_conversation, save_message, save_sources
 from flows.add_source_flow import URL_PATTERN, run_add_source
@@ -18,6 +21,7 @@ from telemetry.metrics import chat_duration, chat_requests
 async def process_chat(conversation_id: str, message: str, files: list[UploadFile], excluded_urls: str):
 
     start = time.perf_counter()
+    message = message or ""
 
     print("Message: ", message)
     print("Files: ", files)
@@ -45,12 +49,76 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
         print("Files found:", has_files)
 
         if has_files:
-            user_message = await save_message(conversation_id, "user", message)
-            yield sse_event("uploading_files", {"count": len([f for f in files if f.filename])})
-            results = await asyncio.gather(
-                *[run_add_source(conversation_id, file=f) for f in files if f.filename],
-                return_exceptions=True
-            )
+            valid_files = [f for f in files if f.filename]
+            yield sse_event("uploading_files", {"count": len(valid_files)})
+
+            uploaded_results = []
+            files_to_process = []
+
+            try:
+                for file in valid_files:
+                    try:
+                        await file.seek(0)
+                        print("Uploading Files>>>>")
+                        result = upload(file.file, resource_type="auto", access_mode="public")
+                        print("File Uploaded....")
+
+                        file_url = result.get("secure_url") or result.get("url")
+                        if not file_url:
+                            raise ValueError("Cloudinary upload did not return a URL")
+
+                        uploaded_results.append({
+                            "filename": file.filename,
+                            "url": file_url,
+                            "public_id": result.get("public_id"),
+                            "status": "success"
+                        })
+                        files_to_process.append(file)
+                        await file.seek(0)
+                    except Error as e:
+                        uploaded_results.append({
+                            "filename": file.filename,
+                            "status": "failed",
+                            "error": str(e)
+                        })
+                    except Exception as e:
+                        uploaded_results.append({
+                            "filename": file.filename,
+                            "status": "failed",
+                            "error": str(e)
+                        })
+                    finally:
+                        print("Cloudinary upload result: ", uploaded_results)
+
+                failed_uploads = [r for r in uploaded_results if r["status"] == "failed"]
+                successful_uploads = [r for r in uploaded_results if r["status"] == "success"]
+
+                if failed_uploads and not successful_uploads:
+                    yield sse_event("error", {"type": "upload_failed", "files": failed_uploads})
+                    return
+
+                if failed_uploads:
+                    yield sse_event("partial_upload", {
+                        "uploaded": successful_uploads,
+                        "failed": failed_uploads,
+                        "count": len(successful_uploads),
+                    })
+
+                user_message = await save_message(
+                    conversation_id,
+                    "user",
+                    message,
+                    file_url=successful_uploads[0]["url"] if successful_uploads else None,
+                )
+
+                results = await asyncio.gather(
+                    *[run_add_source(conversation_id, file=f) for f in files_to_process],
+                    return_exceptions=True
+                )
+            finally:
+                for file in valid_files:
+                    file.file.close()
+
             stored = []
             failed = []
 
@@ -113,7 +181,7 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
                 conversation_id=conversation_id,
                 message=enriched_message,
                 excluded_urls=excluded,
-                skip_save_user=False,
+                skip_save_user=True,
             ):
                 yield item
 
