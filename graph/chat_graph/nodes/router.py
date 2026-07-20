@@ -15,7 +15,7 @@ def route_after_query_understanding(state):
             return "retrieve_context"
 
         case "filler":
-            return "save_assistant"
+            return "save_user"
 
         case "off_topic":
             return "off_topic_decision"
@@ -44,7 +44,7 @@ def route_after_off_topic_decision(state):
 def route_after_smaller_model(state):
 
     if state["source"] == "general_knowledge":
-        return "save_assistant"
+        return "save_user"
 
     return "confidence"
 
@@ -52,6 +52,6 @@ def route_after_smaller_model(state):
 def route_after_confidence(state):
 
     if state["confidence"] >= CONFIDENCE_THRESHOLD:
-        return "save_assistant"
+        return "save_user"
 
     return "larger_model"

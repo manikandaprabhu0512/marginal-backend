@@ -41,7 +41,6 @@ builder.add_node("larger_model", larger_model_node)
 builder.add_node("save_assistant", save_assistant_node)
 
 builder.add_edge(START, "history")
-builder.add_edge("history", "save_user")
 builder.add_edge("history", "query_understanding")
 
 builder.add_conditional_edges(
@@ -49,7 +48,7 @@ builder.add_conditional_edges(
     route_after_query_understanding,
     {
         "retrieve_context": "retrieve_context",
-        "save_assistant": "save_assistant",
+        "save_user": "save_user",
         "off_topic_decision": "off_topic_decision",
     },
 )
@@ -82,7 +81,7 @@ builder.add_conditional_edges(
     route_after_smaller_model,
     {
         "confidence": "confidence",
-        "save_assistant": "save_assistant",
+        "save_user": "save_user",
     },
 )
 
@@ -91,13 +90,13 @@ builder.add_conditional_edges(
     route_after_confidence,
     {
         "larger_model": "larger_model",
-        "save_assistant": "save_assistant",
+        "save_user": "save_user",
     },
 )
 
-builder.add_edge("general_knowledge", "save_assistant")
-builder.add_edge("larger_model", "save_assistant")
-builder.add_edge("save_user", END)
+builder.add_edge("general_knowledge", "save_user")
+builder.add_edge("larger_model", "save_user")
+builder.add_edge("save_user", "save_assistant")
 builder.add_edge("create_notebook", END)
 builder.add_edge("save_assistant", END)
 

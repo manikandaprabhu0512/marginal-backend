@@ -99,8 +99,6 @@ otel_handler = LoggingHandler(
 )
 
 root_logger = logging.getLogger()
-for h in root_logger.handlers:
-    print(type(h), h)
 
 if not any(
     isinstance(handler, LoggingHandler)

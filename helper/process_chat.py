@@ -23,8 +23,6 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
     start = time.perf_counter()
     message = message or ""
 
-    print("Message: ", message)
-    print("Files: ", files)
     if (not message or not message.strip()) and not files:
         yield sse_event("error", {"message": "No message or file both are not found. Please enter one to move forward"});
         yield sse_event("done", {})
@@ -42,8 +40,6 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
         yield sse_event("checking_for_files", {})
         has_files = files and any(f.filename for f in files)
 
-        print("Files found:", has_files)
-
         if has_files:
             valid_files = [f for f in files if f.filename]
             yield sse_event("uploading_files", {"count": len(valid_files)})
@@ -55,9 +51,7 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
                 for file in valid_files:
                     try:
                         await file.seek(0)
-                        print("Uploading Files>>>>")
                         result = upload(file.file, resource_type="auto", access_mode="public")
-                        print("File Uploaded....")
 
                         file_url = result.get("secure_url") or result.get("url")
                         if not file_url:
@@ -83,8 +77,7 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
                             "status": "failed",
                             "error": str(e)
                         })
-                    finally:
-                        print("Cloudinary upload result: ", uploaded_results)
+
 
                 failed_uploads = [r for r in uploaded_results if r["status"] == "failed"]
                 successful_uploads = [r for r in uploaded_results if r["status"] == "success"]
