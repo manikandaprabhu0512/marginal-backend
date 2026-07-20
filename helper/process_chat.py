@@ -32,10 +32,6 @@ async def process_chat(conversation_id: str, message: str, files: list[UploadFil
 
     
     try:
-        if len(message.strip()) > 200:
-            yield sse_event("error", {"message": "Message too long. Paste URLs or attach files to add sources."})
-            return
-
         if not await get_or_create_conversation(conversation_id):
             yield sse_event("error", {"message": "Conversation not found"})
             return
