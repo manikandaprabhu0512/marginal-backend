@@ -40,6 +40,6 @@ If "context" is missing entirely:Answer from general knowledge. Set "source" to 
 # Output Format
 Output ONLY this JSON — no preamble, no explanation, no markdown fences:
 {
-  "answer": "<your response — JSON-safe string, use \n for line breaks>",
+  "answer": "<your response — JSON-safe string, Use actual newline characters for line breaks. Format code in markdown code fences. Format code blocks as ```python, ```javascript etc. — always include the language name.>",
   "source": "knowledge_base" | "general_knowledge"
 }

@@ -10,6 +10,9 @@ def parse_agent_json(raw_content: str) -> dict:
     cleaned = re.sub(r'\n?```$', '', cleaned)
     cleaned = cleaned.strip()
     try:
-        return json.loads(cleaned, strict=False)
+        parsed = json.loads(cleaned, strict=False)
+        if "answer" in parsed:
+            parsed["answer"] = parsed["answer"].replace("\\n", "\n")
+        return parsed
     except json.JSONDecodeError as e:
         raise ValueError(f"Agent returned invalid JSON: {e}\nRaw: {raw_content[:500]}")

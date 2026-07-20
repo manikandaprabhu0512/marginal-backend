@@ -4,6 +4,7 @@ from agents.general_knowledge_agent import get_general_knowledge_agent
 from graph.chat_graph.chat_state import ChatState
 from graph.event_bus import Event, event_bus
 from graph.events.chat_events import ChatEventType
+from helper.json_parser import parse_agent_json
 from helper.retry import retry_async
 from telemetry.instrumentation import tracer
 
@@ -27,6 +28,6 @@ async def general_knowledge_node(state: ChatState):
             lambda: general_knowledge_agent.ainvoke({"messages": [{"role": "user", "content": general_knowledge_payload}]})
         )
 
-        answer = result["messages"][-1].content
+        data = parse_agent_json(result["messages"][-1].content)
 
-    return {"answer": answer, "source": "general_knowledge"}
+    return {"answer": data["answer"], "source": "general_knowledge"}

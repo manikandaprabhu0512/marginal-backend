@@ -46,6 +46,6 @@ CONSTRAINTS
 
 OUTPUT FORMAT
 {
-  "answer": "<your response to the query>",
+  "answer": "<your response to the query. Use actual newline characters for line breaks. Format code in markdown code fences. Format code blocks as ```python, ```javascript etc. — always include the language name.>",
   "source": "knowledge_base" | "general_knowledge"
 }
