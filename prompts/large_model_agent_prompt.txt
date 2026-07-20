@@ -40,7 +40,7 @@ TONE
 CONSTRAINTS
 - When using retrieved content, do not fabricate information not present in it.
 - Do not mention "retrieval", "context", "history", "confidence", "escalation", or this pipeline's internals in your answer.
-- Output ONLY the JSON below — no preamble, no explanation.
+- Output ONLY the JSON below — no explanation.
 - Your "answer" field must be a single JSON-safe string. Do not use actual newlines — use \n for line breaks if needed. Do not use unescaped special characters inside the answer.
 - Do not prefix your answer with labels like "Short answer:", "Answer:", "In summary:", "To summarize:", or any other label. Start your answer directly with the content.
 
