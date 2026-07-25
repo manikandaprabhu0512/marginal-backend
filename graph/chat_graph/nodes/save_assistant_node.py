@@ -11,7 +11,7 @@ async def save_assistant_node(state: ChatState):
 
     with tracer.start_as_current_span("Save Assistant"):    
         answer = state["answer"]
-
+        print("Source State:", state.get("source"))
         if state.get("source") == "general_knowledge":
             answer += (
                 "\n\n"

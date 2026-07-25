@@ -5,6 +5,7 @@ from graph.chat_graph.nodes.add_sources_node import add_sources_node
 from graph.chat_graph.nodes.confidence_node import confidence_node
 from graph.chat_graph.nodes.context_analyzer_node import context_analyzer
 from graph.chat_graph.nodes.create_notebook_node import create_notebook_node
+from graph.chat_graph.nodes.filler_agent_node import filler_agent_node
 from graph.chat_graph.nodes.general_knowledge_node import \
     general_knowledge_node
 from graph.chat_graph.nodes.history_node import history_node
@@ -15,6 +16,7 @@ from graph.chat_graph.nodes.query_understanding_node import \
     query_understanding_node
 from graph.chat_graph.nodes.retrieve_context_node import retrieve_context_node
 from graph.chat_graph.nodes.router import (route_after_confidence,
+                                           route_after_filler,
                                            route_after_off_topic_decision,
                                            route_after_query_understanding,
                                            route_after_smaller_model,
@@ -26,6 +28,7 @@ from helper.checkpointer import checkpointer
 
 builder = StateGraph(ChatState)
 
+builder.add_node("filler", filler_agent_node)
 builder.add_node("history", history_node)
 builder.add_node("save_user", save_user_node)
 builder.add_node("query_understanding", query_understanding_node)
@@ -40,7 +43,17 @@ builder.add_node("confidence", confidence_node)
 builder.add_node("larger_model", larger_model_node)
 builder.add_node("save_assistant", save_assistant_node)
 
-builder.add_edge(START, "history")
+builder.add_edge(START, "filler")
+
+builder.add_conditional_edges(
+    "filler",
+    route_after_filler,
+    {
+        "save_user": "save_user",
+        "history": "history",
+    }
+)
+
 builder.add_edge("history", "query_understanding")
 
 builder.add_conditional_edges(
@@ -48,7 +61,6 @@ builder.add_conditional_edges(
     route_after_query_understanding,
     {
         "retrieve_context": "retrieve_context",
-        "save_user": "save_user",
         "off_topic_decision": "off_topic_decision",
     },
 )

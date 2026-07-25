@@ -7,15 +7,18 @@ def router_after_context_analyzer(state):
 
     return "smaller_model"
 
+def route_after_filler(state):
+    if state["is_filler"] : 
+        return "save_user"
+    
+    return "history"
+
 def route_after_query_understanding(state):
 
     match state["query_type"]:
 
         case "question":
             return "retrieve_context"
-
-        case "filler":
-            return "save_user"
 
         case "off_topic":
             return "off_topic_decision"

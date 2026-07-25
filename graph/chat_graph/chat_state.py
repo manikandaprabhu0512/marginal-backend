@@ -8,6 +8,8 @@ class ChatState(TypedDict):
 
     message: str
 
+    is_filler: bool
+
     query_type: str
 
     rewritten_query: str

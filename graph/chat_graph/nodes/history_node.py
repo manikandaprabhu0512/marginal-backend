@@ -7,7 +7,7 @@ from telemetry.instrumentation import tracer
 
 
 async def history_node(state: ChatState):
-
+    print("History Fetched...")
     with tracer.start_as_current_span("Fetch History"):
         await event_bus.publish(
             Event(

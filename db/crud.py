@@ -60,7 +60,8 @@ async def list_conversations() -> list[dict]:
 async def get_history(conversation_id: str) -> list[dict]:
     messages = await (
         Message.find(Message.conversation_id == conversation_id)
-        .sort("+created_at")
+        .sort("-created_at")
+        .limit(10)
         .to_list()
     )
     return [{"role": m.role, "content": m.content} for m in messages]

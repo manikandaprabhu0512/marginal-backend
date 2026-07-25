@@ -59,5 +59,4 @@ async def query_understanding_node(state: ChatState):
         return {
             "query_type": data["type"],
             "rewritten_query": data["rewritten_query"],
-            "answer": data["direct_answer"]
         }
