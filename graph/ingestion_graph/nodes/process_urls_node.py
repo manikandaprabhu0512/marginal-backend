@@ -2,6 +2,7 @@ import asyncio
 
 from background.cleanup import cleanup_ingestion
 from background.manager import background_manager
+from config.crawl4ai_config import crawler
 from graph.event_bus import Event, event_bus
 from graph.events.ingestion_events import IngestionEventType
 from graph.ingestion_graph.process_url_graph import process_url_graph
@@ -11,7 +12,11 @@ from telemetry.instrumentation import tracer
 
 
 async def process_urls_node(state: GraphState):
+
+
     with tracer.start_as_current_span("Processing URLs"):
+
+        await crawler.start()
 
         result = await asyncio.gather(
             *[
@@ -29,6 +34,8 @@ async def process_urls_node(state: GraphState):
             ],
             return_exceptions=True,
         )
+
+        await crawler.close()
 
         saved_urls = []
 

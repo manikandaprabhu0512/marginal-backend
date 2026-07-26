@@ -3,6 +3,7 @@ from graph.ingestion_graph.worker_state import WorkerState, WorkerStatus
 from helper.retry import retry_async
 from telemetry.instrumentation import tracer
 
+
 async def save_source_node(state: WorkerState):
 
     with tracer.start_as_current_span("Save source"):

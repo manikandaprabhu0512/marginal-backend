@@ -1,22 +1,19 @@
-import re
+import traceback
 
-import httpx
-from bs4 import BeautifulSoup
+from config.crawl4ai_config import crawler
 
 
-async def web_loader_tool(link: str):
-    """Fetch and extract clean text content from a given URL."""
+async def web_loader_tool(url: str):
     try:
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
-            response = await client.get(link)
-            response.raise_for_status()
+        
+        result = await crawler.arun(url)
 
-        soup = BeautifulSoup(response.text, "html.parser")
-        for tag in soup(["script", "style", "nav", "footer", "header"]):
-            tag.decompose()
-        text = soup.get_text(separator=" ")
-        clean_text = re.sub(r'\s+', ' ', text).strip()
-        return clean_text
+        if not result.success:
+            print(result.error_message)
+            return
 
-    except Exception as e:
-        return f"ERROR: failed to load {link} - {str(e)}"
+        return result.markdown
+
+    except Exception:
+        traceback.print_exc()
+        raise
