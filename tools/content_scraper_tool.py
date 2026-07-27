@@ -5,8 +5,11 @@ from mcp_setup.tool_registry import get_tool_by_name
 
 
 async def search_urls(query: str) -> list[dict]:
+    print("Searching for URLs...")
     search_tool = await get_tool_by_name("search_engine")
+    print("Search Engine Loaded...")
     result = await search_tool.ainvoke({"query": query})
+    print("Search Complete...")
 
     raw_text = result[0]["text"]
     data = json.loads(raw_text)

@@ -9,18 +9,15 @@ async def get_all_mcp_tools():
     global _client, _tools_cache
     if _tools_cache is not None:
         return _tools_cache
+    
+    print("Getting Tools Ready...")
 
     _client = MultiServerMCPClient(
         {
-            "Bright Data": {
-                "command": "npx",
-                "args": ["@brightdata/mcp"],
-                "env": {
-                    "API_TOKEN": os.getenv("BRIGHTDATA_API_TOKEN"),
-                    "GROUPS": "advanced_scraping"
-                },
-                "transport": "stdio",
-            },
+            "bright_data": {
+                "url": f"https://mcp.brightdata.com/sse?token={os.getenv('BRIGHTDATA_API_TOKEN')}",
+                "transport": "sse",
+            }
         }
     )
     _tools_cache = await _client.get_tools()
