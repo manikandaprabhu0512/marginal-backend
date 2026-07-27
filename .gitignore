@@ -142,3 +142,5 @@ cython_debug/
 *.idea
 test_codes/
 samples/
+tests/
+tests/chat_graph

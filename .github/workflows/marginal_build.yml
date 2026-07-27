@@ -5,12 +5,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "**"
   pull_request:
     branches: [main]
-    paths:
-      - "**"
 
 jobs:
   deploy:
@@ -18,20 +14,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push to Docker Hub
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
-          context: ./admin
+          context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/tomato-admin-service:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/marginal-backend:latest
 
       - name: Trigger Render deploy
         run: |
