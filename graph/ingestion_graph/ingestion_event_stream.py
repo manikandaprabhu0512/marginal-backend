@@ -27,18 +27,15 @@ async def ingestion_event_stream(conversation_id: str, query: str):
                     event.data,
                 )
 
-                if event.type == IngestionEventType.INGESTION_COMPLETED:
+                if event.type == IngestionEventType.SUMMARY_READY:
                     break
 
             await graph_task
 
-            async for item in chat_event_stream(
-                conversation_id=conversation_id,
-                message=query,
-                excluded_urls=[],
-                skip_save_user=False,
-            ):
-                yield item
+            yield sse_event(
+                "done",
+                {},
+            )
     
     finally:
         ingestion_duration.record(

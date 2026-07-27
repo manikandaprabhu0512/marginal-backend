@@ -8,4 +8,5 @@ class IngestionEventType(str, Enum):
     SEARCH_COMPLETED = "search_completed"
     SOURCE_LOADED = "source_loaded"
     INGESTION_COMPLETED = "ingestion_completed"
+    SUMMARY_READY= "summary_ready"
     ERROR = "error"

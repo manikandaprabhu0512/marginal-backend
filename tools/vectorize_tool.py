@@ -1,4 +1,3 @@
-import asyncio
 import hashlib
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -16,13 +15,22 @@ executor = ThreadPoolExecutor(max_workers=10)
 async def vectorize_page(conversation_id: str, url: str, title: str, content: str):
     vector_store = get_vector_store(conversation_id)
 
+    start = time.perf_counter()
+
     docs = [Document(page_content=content, metadata={"url": url, "title": title, "stored_at": time.time()})]
     splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=200)
     split_docs = splitter.split_documents(docs)
+    print("Split:", time.perf_counter() - start)
+    print("Content Length:", len(content))
+    print("Split Docs: ", len(split_docs))
+
+    start = time.perf_counter()
 
     vector_ids = [f"{hashlib.md5(url.encode()).hexdigest()}-{i}" for i in range(len(split_docs))]
 
     await vector_store.aadd_documents(documents=split_docs, ids=vector_ids, batch_size=100, embedding_chunk_size=1000)
+    print("Title: ", title)
+    print("Embedding + Pinecone:", time.perf_counter() - start)
 
     return vector_ids
 

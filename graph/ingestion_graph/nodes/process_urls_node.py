@@ -16,7 +16,7 @@ async def process_urls_node(state: GraphState):
 
     with tracer.start_as_current_span("Processing URLs"):
 
-        await crawler.start()
+        # await crawler.start()
 
         result = await asyncio.gather(
             *[
@@ -35,9 +35,10 @@ async def process_urls_node(state: GraphState):
             return_exceptions=True,
         )
 
-        await crawler.close()
-
+        # await crawler.close()
+        print("URLs Processed...")
         saved_urls = []
+        titles = []
 
         for item in result:
 
@@ -46,8 +47,8 @@ async def process_urls_node(state: GraphState):
 
             if item["status"] == WorkerStatus.SUCCESS:
                 saved_urls.append(item["url"])
-
-        
+                titles.append(item["url"]["title"])
+                
         await event_bus.publish(
             Event(
                 conversation_id=state["conversation_id"],
@@ -62,4 +63,8 @@ async def process_urls_node(state: GraphState):
             cleanup_ingestion(state["conversation_id"],state["query"])
         )
 
-        return {}
+        print("Titles: ", titles)
+
+        return {
+            "titles": titles,
+        }
