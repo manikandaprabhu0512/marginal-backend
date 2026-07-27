@@ -32,7 +32,7 @@ trace.set_tracer_provider(
 )
 
 span_exporter = OTLPSpanExporter(
-    endpoint=f"{os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"]}/v1/traces",
+    endpoint=f"{os.environ['OTEL_EXPORTER_OTLP_ENDPOINT']}/v1/traces",
     headers = {
         "Authorization": os.environ["OTEL_EXPORTER_OTLP_HEADERS"]
             .split("=", 1)[1]
