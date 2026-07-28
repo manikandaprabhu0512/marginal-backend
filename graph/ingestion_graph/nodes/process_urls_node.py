@@ -18,9 +18,28 @@ async def process_urls_node(state: GraphState):
 
         await crawler.start()
 
-        result = await asyncio.gather(
-            *[
-                process_url_graph.ainvoke(
+        # result = await asyncio.gather(
+        #     *[
+        #         process_url_graph.ainvoke(
+        #             {
+        #                 "conversation_id": state["conversation_id"],
+        #                 "url": url,
+        #                 "status": WorkerStatus.PENDING,
+        #                 "error": None,
+        #                 "page": None,
+        #                 "page_result": None,
+        #             }
+        #         )
+        #         for url in state["url_list"]
+        #     ],
+        #     return_exceptions=True,
+        # )
+
+        sem = asyncio.Semaphore(3)
+
+        async def process(url):
+            async with sem:
+                return await process_url_graph.ainvoke(
                     {
                         "conversation_id": state["conversation_id"],
                         "url": url,
@@ -30,8 +49,9 @@ async def process_urls_node(state: GraphState):
                         "page_result": None,
                     }
                 )
-                for url in state["url_list"]
-            ],
+
+        result = await asyncio.gather(
+            *(process(url) for url in state["url_list"]),
             return_exceptions=True,
         )
 
