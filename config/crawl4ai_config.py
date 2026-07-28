@@ -26,7 +26,14 @@ markdown_generator = DefaultMarkdownGenerator(
 )
 
 run_config = CrawlerRunConfig(
-    markdown_generator=markdown_generator
+    markdown_generator=markdown_generator,
+    excluded_tags=[
+        "script",
+        "style",
+        "nav",
+        "footer",
+        "header",
+    ]
 )
 
 crawler = AsyncWebCrawler()

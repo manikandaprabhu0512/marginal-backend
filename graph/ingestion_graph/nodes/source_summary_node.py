@@ -11,14 +11,13 @@ from telemetry.instrumentation import tracer
 
 
 async def source_summary_node(state: GraphState):
-    print("State Title: ", state["titles"])
 
     with tracer.start_as_current_span("Source Summary"):
         source_summarizer = get_sources_summary_agent()
 
-        source_summary = await source_summarizer.ainvoke({
-            "messages": [{"role": "user", "content": json.dumps({"sources": state["titles"]})}]
-        })
+        source_summary = await retry_async(
+            lambda: source_summarizer.ainvoke({"messages": [{"role": "user", "content": json.dumps({"sources": state["titles"]})}]})
+        )
 
         source_summary_data = parse_agent_json(source_summary["messages"][-1].content)
 

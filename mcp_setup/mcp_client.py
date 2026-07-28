@@ -10,8 +10,6 @@ async def get_all_mcp_tools():
     if _tools_cache is not None:
         return _tools_cache
     
-    print("Getting Tools Ready...")
-
     _client = MultiServerMCPClient(
         {
             "bright_data": {

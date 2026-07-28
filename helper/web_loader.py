@@ -3,6 +3,8 @@ import re
 import httpx
 from bs4 import BeautifulSoup
 
+from config.crawl4ai_config import crawler, run_config
+
 
 async def web_loader_tool(link: str):
     """Fetch and extract clean text content from a given URL."""
@@ -19,4 +21,12 @@ async def web_loader_tool(link: str):
         return clean_text
 
     except Exception as e:
-        return f"ERROR: failed to load {link} - {str(e)}"
+        try:
+            print(f"BeautifulSoup failed for {link}. Falling back to Crawl4AI...")
+
+            result = await crawler.arun(link, config=run_config)
+
+            return result.markdown
+
+        except Exception as e:
+            return f"ERROR: failed to load {link} - {str(e)}"

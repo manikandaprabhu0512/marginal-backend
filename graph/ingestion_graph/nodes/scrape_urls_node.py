@@ -24,11 +24,7 @@ async def search_node(state: GraphState):
                 lambda: content_scraper_agent.ainvoke({"messages": [{"role": "user", "content": json.dumps({"query": state["rewritten_query"]})}]})
             )
 
-            print(result)
-
             data = parse_agent_json(result["messages"][-1].content)
-
-        print(data["pages"])
 
         await event_bus.publish(
             Event(
