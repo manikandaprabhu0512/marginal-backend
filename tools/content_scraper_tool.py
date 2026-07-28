@@ -7,20 +7,33 @@ import requests
 
 async def search_urls(query: str) -> list[dict]:
 
-    payload = {
-        "q": query,
-        "page": 2
-    }
+    no_of_pages = 2
 
-    headers = {
-        'X-API-KEY': os.getenv("SERPER_API_KEY"),
-        'Content-Type': 'application/json'
-    }
+    search_data = []
 
-    response = requests.request("POST", os.getenv("SERPER_URL"), headers=headers, json=payload)
+    for page_number in range(1, no_of_pages + 1):
+        payload = {
+            "q": query,
+            "page": page_number
+        }
 
-    data = json.loads(response.text)
-    organic = data.get("organic", [])
+        headers = {
+            'X-API-KEY': os.getenv("SERPER_API_KEY"),
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(os.getenv("SERPER_URL"), headers=headers, json=payload)
+
+        if response.status_code == 200:
+            data = response.json()
+            organic = data.get("organic", [])
+            
+            search_data.extend(organic)
+        else:
+            print(f"Error on page {page_number}: {response.status_code} - {response.text}")
+            break
+        
+    print(len(search_data))
 
     SKIP_DOMAINS = [
         "youtube.com", "youtu.be", "twitter.com", "x.com",
@@ -37,7 +50,7 @@ async def search_urls(query: str) -> list[dict]:
     preferred = []
     others = []
 
-    for r in organic:
+    for r in search_data:
         url = r["link"]
         domain = urlparse(url).netloc
 
@@ -55,4 +68,4 @@ async def search_urls(query: str) -> list[dict]:
         else:
             others.append(item)
 
-    return (preferred + others)[:10]
+    return (preferred + others)[:20]
