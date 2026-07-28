@@ -26,7 +26,11 @@ markdown_generator = DefaultMarkdownGenerator(
 )
 
 run_config = CrawlerRunConfig(
+    word_count_threshold=10,
     markdown_generator=markdown_generator,
+    exclude_external_images=True,
+    exclude_external_links=True,
+    page_timeout=15000,
     excluded_tags=[
         "script",
         "style",
