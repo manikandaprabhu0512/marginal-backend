@@ -3,7 +3,7 @@ import os
 
 from background.cleanup import cleanup_ingestion
 from background.manager import background_manager
-from config.crawl4ai_config import crawler
+# from config.crawl4ai_config import crawler
 from graph.event_bus import Event, event_bus
 from graph.events.ingestion_events import IngestionEventType
 from graph.ingestion_graph.process_url_graph import process_url_graph

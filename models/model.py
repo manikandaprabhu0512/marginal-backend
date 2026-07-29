@@ -4,4 +4,4 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 smaller_model = ChatOpenAI(model='gpt-5-nano-2025-08-07')
 groq_model = ChatGroq(model="openai/gpt-oss-20b")
 larger_model = ChatOpenAI(model='gpt-5-mini-2025-08-07')
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small", chunk_size=100)
+embedding_model = OpenAIEmbeddings(model="text-embedding-3-small", chunk_size=100)

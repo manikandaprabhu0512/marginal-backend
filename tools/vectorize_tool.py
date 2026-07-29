@@ -1,36 +1,113 @@
 import hashlib
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from config.pincone_config import get_vector_store
+from config.pincone_config import _index, get_vector_store
+from models.model import embedding_model
 
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small", chunk_size=100)
 
-executor = ThreadPoolExecutor(max_workers=10)
+async def vectorize_page(
+    conversation_id: str,
+    url: str,
+    title: str,
+    content: str,
+):
+    # vector_store = get_vector_store(conversation_id)
 
-async def vectorize_page(conversation_id: str, url: str, title: str, content: str):
-    vector_store = get_vector_store(conversation_id)
+    docs = [
+        Document(
+            page_content=content,
+            metadata={
+                "url": url,
+                "title": title,
+                "stored_at": time.time(),
+            },
+        )
+    ]
 
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=3000,
+        chunk_overlap=200,
+    )
+
+    # -----------------------------
+    # Split
+    # -----------------------------
     start = time.perf_counter()
 
-    docs = [Document(page_content=content, metadata={"url": url, "title": title, "stored_at": time.time()})]
-    splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=200)
     split_docs = splitter.split_documents(docs)
-    print("Split:", time.perf_counter() - start)
-    print("Content Length:", len(content))
-    print("Split Docs: ", len(split_docs))
+
+    print(f"Split Time: {time.perf_counter() - start:.2f}s")
+    print(f"Content Length: {len(content)}")
+    print(f"Chunks: {len(split_docs)}")
+
+    vector_ids = [
+        f"{hashlib.md5(url.encode()).hexdigest()}-{i}"
+        for i in range(len(split_docs))
+    ]
+    print("Vector IDs Generated...")
+
+    texts = [doc.page_content for doc in split_docs]
+    print("Texts Extracted...")
+
+    # ==========================================================
+    # STEP 1 : EMBEDDING
+    # ==========================================================
+
+    print("Embedding Model Loaded...")
 
     start = time.perf_counter()
 
-    vector_ids = [f"{hashlib.md5(url.encode()).hexdigest()}-{i}" for i in range(len(split_docs))]
+    embeddings = await embedding_model.aembed_documents(texts)
+    print("Text Embedded...")
 
-    await vector_store.aadd_documents(documents=split_docs, ids=vector_ids, batch_size=100, embedding_chunk_size=1000)
-    print("Title: ", title)
-    print("Embedding + Pinecone:", time.perf_counter() - start)
+    embedding_time = time.perf_counter() - start
+
+    print(f"Embedding Time: {embedding_time:.2f}s")
+
+    # ==========================================================
+    # STEP 2 : PREPARE VECTORS
+    # ==========================================================
+
+    start = time.perf_counter()
+
+    vectors = [
+        {
+            "id": vector_id,
+            "values": embedding,
+            "metadata": doc.metadata,
+        }
+        for vector_id, embedding, doc in zip(
+            vector_ids,
+            embeddings,
+            split_docs,
+        )
+    ]
+
+    print(f"Vector Build Time: {time.perf_counter() - start:.2f}s")
+
+    # ==========================================================
+    # STEP 3 : UPSERT
+    # ==========================================================
+
+    start = time.perf_counter()
+
+    _index.upsert(
+        vectors=vectors,
+        namespace=conversation_id,
+    )
+
+    upsert_time = time.perf_counter() - start
+
+    print(f"Upsert Time: {upsert_time:.2f}s")
+
+    print("=" * 50)
+    print(f"Embedding : {embedding_time:.2f}s")
+    print(f"Upsert    : {upsert_time:.2f}s")
+    print(f"Total     : {embedding_time + upsert_time:.2f}s")
+    print("=" * 50)
 
     return vector_ids
 

@@ -3,7 +3,7 @@ import os
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 
-from models.model import embeddings
+from models.model import embedding_model
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 
@@ -26,6 +26,6 @@ _index = pc.Index(INDEX_NAME, pool_threads = 30)
 def get_vector_store(conversation_id: str) -> PineconeVectorStore:
     return PineconeVectorStore(
         index=_index,
-        embedding=embeddings,
+        embedding=embedding_model,
         namespace=conversation_id,
     )
