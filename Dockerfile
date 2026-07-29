@@ -11,8 +11,7 @@ COPY requirements.txt runtime.txt ./
 
 RUN python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt \
-    && python -m pip install "uvicorn[standard]" python-multipart \
-    && python -m playwright install --with-deps chromium
+    && python -m pip install "uvicorn[standard]" python-multipart
 
 COPY main.py ./
 COPY agents ./agents
