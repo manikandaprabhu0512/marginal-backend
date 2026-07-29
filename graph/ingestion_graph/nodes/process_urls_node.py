@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from background.cleanup import cleanup_ingestion
 from background.manager import background_manager
@@ -16,7 +17,7 @@ async def process_urls_node(state: GraphState):
 
     with tracer.start_as_current_span("Processing URLs"):
 
-        await crawler.start()
+        # await crawler.start()
 
         # result = await asyncio.gather(
         #     *[
@@ -35,7 +36,9 @@ async def process_urls_node(state: GraphState):
         #     return_exceptions=True,
         # )
 
-        sem = asyncio.Semaphore(3)
+        semaphore_batches = int(os.environ.get('SEMAPHORE_BATCHES', 5))
+    
+        sem = asyncio.Semaphore(semaphore_batches)
 
         async def process(url):
             async with sem:
@@ -55,7 +58,9 @@ async def process_urls_node(state: GraphState):
             return_exceptions=True,
         )
 
-        await crawler.close()
+        print("URL Processed....")
+
+        # await crawler.close()
         saved_urls = []
         titles = []
 

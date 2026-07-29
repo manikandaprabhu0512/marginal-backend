@@ -1,4 +1,3 @@
-import json
 import os
 from urllib.parse import urlparse
 
@@ -7,7 +6,7 @@ import requests
 
 async def search_urls(query: str) -> list[dict]:
 
-    no_of_pages = 2
+    no_of_pages = int(os.environ['SERPER_NUMBER_OF_PAGES'])
 
     search_data = []
 
