@@ -1,13 +1,13 @@
-import hashlib
 import os
 
 from langchain_pinecone import PineconeVectorStore
-from models.model import embeddings
 from pinecone import Pinecone, ServerlessSpec
 
-INDEX_NAME = "main-index"
+from models.model import embeddings
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+
+INDEX_NAME = os.environ['PINECONE_INDEX_NAME']
 
 if not pc.has_index(INDEX_NAME):
     pc.create_index(
