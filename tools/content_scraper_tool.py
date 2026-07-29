@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 
 import requests
@@ -10,27 +11,39 @@ async def search_urls(query: str) -> list[dict]:
 
     search_data = []
 
-    for page_number in range(1, no_of_pages + 1):
+    def fetch_page(query: str, page_number: int):
         payload = {
             "q": query,
-            "page": page_number
+            "page": page_number,
         }
 
         headers = {
-            'X-API-KEY': os.getenv("SERPER_API_KEY"),
-            'Content-Type': 'application/json'
+            "X-API-KEY": os.getenv("SERPER_API_KEY"),
+            "Content-Type": "application/json",
         }
 
-        response = requests.post(os.getenv("SERPER_URL"), headers=headers, json=payload)
+        response = requests.post(
+            os.getenv("SERPER_URL"),
+            headers=headers,
+            json=payload,
+            timeout=30,
+        )
 
-        if response.status_code == 200:
-            data = response.json()
-            organic = data.get("organic", [])
-            
-            search_data.extend(organic)
-        else:
-            print(f"Error on page {page_number}: {response.status_code} - {response.text}")
-            break
+        response.raise_for_status()
+
+        return response.json().get("organic", [])
+
+
+    with ThreadPoolExecutor(max_workers=no_of_pages) as executor:
+        results = executor.map(
+            lambda p: fetch_page(query, p),
+            range(1, no_of_pages + 1),
+        )
+
+    search_data = []
+
+    for organic in results:
+        search_data.extend(organic)
         
     print(len(search_data))
 
