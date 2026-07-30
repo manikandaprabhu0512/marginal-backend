@@ -43,6 +43,8 @@ async def web_loader_tool(link: str):
     try:
         print("Fetching content...")
         link = link.rstrip(".,;:!?)]}\"'")
+        if link.endswith("."):
+            link = link[:-1]
         async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             response = await client.get(link)
             response.raise_for_status()
