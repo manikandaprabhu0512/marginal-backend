@@ -9,4 +9,6 @@ class GraphState(TypedDict):
 
     url_list: list[dict] | None
 
+    events: list[dict] | None
+
     titles: list[str] | None

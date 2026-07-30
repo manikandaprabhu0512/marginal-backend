@@ -47,9 +47,6 @@ async def process_urls_node(state: GraphState):
                         "conversation_id": state["conversation_id"],
                         "url": url,
                         "status": WorkerStatus.PENDING,
-                        "error": None,
-                        "page": None,
-                        "page_result": None,
                     }
                 )
 
@@ -63,12 +60,18 @@ async def process_urls_node(state: GraphState):
         # await crawler.close()
         saved_urls = []
         titles = []
+        events = []
 
         for item in result:
 
+
             if isinstance(item, Exception):
+                print("Item: ", item)
                 continue
 
+            print(item.keys())
+            print("Events: ", item["events"])
+            events.append(item["events"])
             if item["status"] == WorkerStatus.SUCCESS:
                 saved_urls.append(item["url"])
                 titles.append(item["url"]["title"])
@@ -90,4 +93,5 @@ async def process_urls_node(state: GraphState):
 
         return {
             "titles": titles,
+            "events": events
         }

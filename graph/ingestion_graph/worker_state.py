@@ -24,3 +24,5 @@ class WorkerState(TypedDict):
     error: str | None
 
     started_at: float | None
+
+    events: dict | None

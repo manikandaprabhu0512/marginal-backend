@@ -77,7 +77,10 @@ async def vectorize_page(
         {
             "id": vector_id,
             "values": embedding,
-            "metadata": doc.metadata,
+            "metadata": {
+                **doc.metadata,
+                "text": doc.page_content,
+            },
         }
         for vector_id, embedding, doc in zip(
             vector_ids,

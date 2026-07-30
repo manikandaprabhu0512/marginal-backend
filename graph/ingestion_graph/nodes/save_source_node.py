@@ -33,11 +33,31 @@ async def save_source_node(state: WorkerState):
 
             return {
                 "status": WorkerStatus.SUCCESS,
+                "events": {
+                    "status": "done",
+                    "url": state["url"],
+                    "process_time": round(time.perf_counter() - state["started_at"], 2),
+                }
             }
 
         except Exception as e:
 
+            await event_bus.publish(
+                Event(
+                    conversation_id=state["conversation_id"],
+                    type=IngestionEventType.PAGE_LOADING_FAILED,
+                    data={
+                        "url": state["url"],
+                    },
+                )
+            )
+
             return {
                 "status": WorkerStatus.FAILED,
                 "error": str(e),
+                "events": {
+                    "status": "failed",
+                    "url": state["url"],
+                    "process_time": round(time.perf_counter() - state["start_time"], 2),
+                }                
             }

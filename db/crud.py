@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from beanie import PydanticObjectId
 
-from db.models import Conversation, Message, ScrapedURLs, Source
+from db.models import Conversation, Message, ScrapedURLs, Source, Turn
 from helper.file_type import detect_source_type
 from tools.vectorize_tool import delete_vectorize
 
@@ -67,7 +67,7 @@ async def get_history(conversation_id: str) -> list[dict]:
     return [{"role": m.role, "content": m.content} for m in messages]
 
 
-async def save_message(conversation_id: str, role: str, content: str, file_url: str | None = None):
+async def save_message(conversation_id: str, role: str, content: dict, file_url: str | None = None):
     message = await Message(
         conversation_id=conversation_id,
         role=role,
@@ -76,6 +76,16 @@ async def save_message(conversation_id: str, role: str, content: str, file_url: 
     ).insert()
     await update_conversation_activity(conversation_id)
     return message
+
+async def save_turn(conversation_id: str, events: list[dict],  user: dict | None = None, assistant: dict | None = None):
+    turn = await Turn(
+        conversation_id=conversation_id,
+        user=user,
+        events=events or [],
+        assistant=assistant,
+    ).insert()
+    await update_conversation_activity(conversation_id)
+    return turn
 
 
 async def save_sources(conversation_id: str, sources: list[dict]):
@@ -123,6 +133,23 @@ async def get_messages(conversation_id: str) -> list[dict]:
             "created_at": m.created_at,
         }
         for m in messages
+    ]
+
+async def get_turns(conversation_id: str) -> list[dict]:
+    turns = await (
+        Turn.find(Turn.conversation_id == conversation_id)
+        .sort("+created_at")
+        .to_list()
+    )
+    return [
+        {
+            "id": str(t.id),
+            "user": t.user,
+            "events": t.events,
+            "assistant": t.assistant,
+            "created_at": t.created_at,
+        }
+        for t in turns
     ]
 
 async def update_source_count(conversation_id: str, count: int):

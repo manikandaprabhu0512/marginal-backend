@@ -1,4 +1,4 @@
-from db.crud import save_message
+from db.crud import save_message, save_turn
 from graph.chat_graph.chat_state import ChatState
 from graph.event_bus import Event, event_bus
 from graph.events.chat_events import ChatEventType
@@ -24,6 +24,19 @@ async def save_assistant_node(state: ChatState):
                 content=answer,
             )
         )
+
+        await retry_async(
+            lambda: save_turn(
+                conversation_id=state["conversation_id"],
+                user={
+                    "message": state["message"]
+                },
+                events=[],
+                assistant={
+                    "answer": answer,
+                },
+            )
+        )        
 
         await event_bus.publish(
             Event(

@@ -11,12 +11,7 @@ from telemetry.instrumentation import tracer
 async def load_page_node(state: WorkerState):
     with tracer.start_as_current_span("Page load"):
         try:
-            page = await retry_async(
-                lambda: load_page(
-                    state["url"]
-                )
-            )
-
+            start_time = time.perf_counter()
             await event_bus.publish(
                 Event(
                     conversation_id=state["conversation_id"],
@@ -27,15 +22,36 @@ async def load_page_node(state: WorkerState):
                 )
             )
 
+            page = await retry_async(
+                lambda: load_page(
+                    state["url"]
+                )
+            )
+
             return {
                 "page": page,
                 "status": WorkerStatus.SUCCESS,
-                "started_at" : time.perf_counter()
+                "started_at" : start_time
             }
 
         except Exception as e:
 
+            await event_bus.publish(
+                Event(
+                    conversation_id=state["conversation_id"],
+                    type=IngestionEventType.PAGE_LOADING_FAILED,
+                    data={
+                        "url": state["url"],
+                    },
+                )
+            )
+
             return {
                 "status": WorkerStatus.FAILED,
                 "error": str(e),
+                "events": {
+                    "status": "failed",
+                    "url": state["url"],
+                    "process_time": round(time.perf_counter() - start_time, 2),
+                }
             }

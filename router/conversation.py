@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from db.crud import (db_get_conversation, delete_source_db, get_messages,
                      get_or_create_conversation, get_source, get_sources,
-                     list_conversations, save_sources,
+                     get_turns, list_conversations, save_sources,
                      update_conversation_title)
 from db.models import Conversation
 
@@ -42,6 +42,10 @@ async def get_notebook(conversation_id: str):
 @router.get("/conversations/{conversation_id}/messages")
 async def get_conversation_messages(conversation_id: str):
     return await get_messages(conversation_id)
+
+@router.get("/conversations/{conversation_id}/turns")
+async def get_conversation_turns(conversation_id: str):
+    return await get_turns(conversation_id)
 
 @router.patch("/conversations/{conversation_id}/title")
 async def update_title(conversation_id: str, body: TitleRequest):

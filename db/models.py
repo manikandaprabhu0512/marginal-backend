@@ -14,6 +14,16 @@ class Conversation(Document):
     class Settings:
         name = "conversations"
 
+class Turn(Document):
+    conversation_id: str
+    user: dict | None = None
+    events: list[dict] | None = None
+    assistant: dict | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    class Settings:
+        name = "turns"
+
 
 class Message(Document):
     conversation_id: str

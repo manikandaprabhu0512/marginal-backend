@@ -9,6 +9,7 @@ class IngestionEventType(str, Enum):
     SOURCE_LOADED = "source_loaded"
     PAGE_LOADING_STARTED = "page_loading_started"
     PAGE_LOADING_COMPLETED = "page_loading_completed"
+    PAGE_LOADING_FAILED = "page_loading_failed"
     INGESTION_COMPLETED = "ingestion_completed"
     SUMMARY_READY= "summary_ready"
     ERROR = "error"
