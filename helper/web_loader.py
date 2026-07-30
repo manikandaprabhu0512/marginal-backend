@@ -34,6 +34,7 @@
 import re
 
 import httpx
+import trafilatura
 from bs4 import BeautifulSoup
 
 
@@ -54,4 +55,13 @@ async def web_loader_tool(link: str):
         return clean_text
 
     except Exception as e:
-        return f"ERROR: failed to load {link} - {str(e)}"
+        try:
+            print(f"BeautifulSoup failed for {link}. Falling back to Trafilatura...")
+
+            downloaded = trafilatura.fetch_url(link)
+            result = trafilatura.extract(downloaded, output_format="markdown")
+
+            return result
+
+        except Exception as e:
+            return f"ERROR: failed to load {link} - {str(e)}"
