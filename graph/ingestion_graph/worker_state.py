@@ -22,3 +22,5 @@ class WorkerState(TypedDict):
     status: WorkerStatus
 
     error: str | None
+
+    started_at: float | None

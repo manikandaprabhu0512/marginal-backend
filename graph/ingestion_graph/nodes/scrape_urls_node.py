@@ -32,7 +32,7 @@ async def search_node(state: GraphState):
                 conversation_id=state["conversation_id"],
                 type=IngestionEventType.SEARCH_COMPLETED,
                 data={
-                    "urls_found": len(scraped_urls),
+                    "urls_found": scraped_urls,
                 },
             )
         )
