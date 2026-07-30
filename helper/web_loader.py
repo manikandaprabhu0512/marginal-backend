@@ -42,6 +42,7 @@ async def web_loader_tool(link: str):
     """Fetch and extract clean text content from a given URL."""
     try:
         print("Fetching content...")
+        link = link.rstrip(".,;:!?)]}\"'")
         async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             response = await client.get(link)
             response.raise_for_status()
