@@ -18,11 +18,13 @@ class ChatState(TypedDict):
 
     skip_save_user: bool
 
-    history: list
+    history: dict | None
 
     user_message: Message | None
 
     context: str | None
+
+    query_intent: str | None
 
     insufficient : bool
 

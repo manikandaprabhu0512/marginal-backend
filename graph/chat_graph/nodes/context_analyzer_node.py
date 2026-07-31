@@ -6,7 +6,9 @@ from telemetry.instrumentation import tracer
 
 async def context_analyzer(state: ChatState):
     with tracer.start_as_current_span("Context Analyzer") as span:
+        print("Context Analyzer Node....")
         context = state["context"]
+        print("Context: ", len(context))
 
         await event_bus.publish(
             Event(
@@ -31,5 +33,7 @@ async def context_analyzer(state: ChatState):
             return {"insufficient": True}
         
         span.set_attribute("insufficient", False)
+
+        print("Exiting Context Analyzer....")
         
         return {"insufficient": False}

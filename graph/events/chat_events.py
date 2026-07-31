@@ -4,6 +4,8 @@ from enum import Enum
 class ChatEventType(str, Enum):
     FETCHING_HISTORY = "fetching_history"
     UNDERSTANDING_QUERY = "understanding_query"
+    UNDERSTANDING_INTENT = "understanding_intent"
+    QUERY_REWRITTER = "query_rewritter"
     GENERATING_ANSWER = "generating_answer"
     INTERRUPTED = "interrupted"
     CREATED_NOTEBOOK = "create_notebook"

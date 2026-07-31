@@ -23,6 +23,11 @@ async def smaller_model_node(state: ChatState):
         with tracer.start_as_current_span("Smaller Agent"):
             smaller_agent = await get_smaller_model_agent(state["conversation_id"])
 
+        print("Building Input payload for Smaller Agent...")
+        print("Query: ", state["message"])
+        print("Context: ", state["context"])
+        print("History: ", state["history"])
+
         input_payload = json.dumps(
             {
                 "query": state["message"],
@@ -30,6 +35,8 @@ async def smaller_model_node(state: ChatState):
                 "history": state["history"],
             }
         )
+
+        print("Input payload for Smaller Model: ", input_payload)
 
         with tracer.start_as_current_span("Generating answer") as smaller_span:
             result = await retry_async(

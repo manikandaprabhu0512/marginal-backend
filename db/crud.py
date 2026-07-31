@@ -66,6 +66,14 @@ async def get_history(conversation_id: str) -> list[dict]:
     )
     return [{"role": m.role, "content": m.content} for m in messages]
 
+async def get_previous_turn(conversation_id: str) -> Turn | None:
+    print("Conversation ID:", conversation_id)
+    return await (
+        Turn.find(Turn.conversation_id == conversation_id)
+        .sort("-created_at")
+        .first_or_none()
+    )
+
 
 async def save_message(conversation_id: str, role: str, content: dict, file_url: str | None = None):
     message = await Message(

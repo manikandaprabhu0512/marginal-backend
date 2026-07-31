@@ -23,6 +23,8 @@ async def confidence_node(state: ChatState):
         with tracer.start_as_current_span("Confidence Agent"):
             confidence_agent = get_confidence_agent()
 
+        print("Building Input payload for Confidence Agent...")
+
         input_payload = json.dumps(
             {
                 "query": state["message"],
@@ -32,10 +34,14 @@ async def confidence_node(state: ChatState):
             }
         )
 
+        print("Input payload for Confidence Model: ", input_payload)
+
         with tracer.start_as_current_span("Generating confidence") as confidence_span:
             result = await retry_async(
                 lambda: confidence_agent.ainvoke({"messages": [{"role": "user","content": input_payload}]})
             )
+
+            print("Confidence: ", result["messages"][-1].content)
 
             llm_calls.add(1)
 
@@ -61,5 +67,7 @@ async def confidence_node(state: ChatState):
             confidence = parse_agent_json(result["messages"][-1].content)["confidence"]
 
             confidence_span.set_attribute("confidence", confidence)
+
+            print("Moving Forward to Save Node...")
 
             return {"confidence": confidence}

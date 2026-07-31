@@ -5,13 +5,33 @@ def router_after_context_analyzer(state):
     if state["insufficient"] is True:
         return "off_topic_decision"
 
-    return "smaller_model"
+    return "context_confirmation"
 
 def route_after_filler(state):
     if state["is_filler"] : 
         return "save_user"
     
     return "history"
+
+def route_after_query_rewritter(state):
+
+    print("Intent", state["query_intent"])
+    match state["query_intent"]:
+
+        case "meta_conversation":
+            return "save_conversation"
+
+        case "new_question":
+            return "query_rewritter"
+
+        case "followup_question":
+            return "context_confirmation"
+
+        case "topic_correction":
+            return "query_rewritter"
+
+        case _:
+            raise ValueError(f"Unknown intent: {state['intent']}")
 
 def route_after_query_understanding(state):
 
@@ -55,6 +75,6 @@ def route_after_smaller_model(state):
 def route_after_confidence(state):
 
     if state["confidence"] >= CONFIDENCE_THRESHOLD:
-        return "save_user"
+        return "save_conversation"
 
     return "larger_model"

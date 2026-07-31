@@ -1,13 +1,12 @@
-from db.crud import save_message, save_turn
+from db.crud import save_turn
 from graph.chat_graph.chat_state import ChatState
 from graph.event_bus import Event, event_bus
 from graph.events.chat_events import ChatEventType
 from helper.retry import retry_async
-from helper.serializer import _message_to_dict
 from telemetry.instrumentation import tracer
 
 
-async def save_assistant_node(state: ChatState):
+async def save_conversation_node(state: ChatState):
 
     with tracer.start_as_current_span("Save Assistant"):    
         answer = state["answer"]
@@ -17,13 +16,8 @@ async def save_assistant_node(state: ChatState):
                 "*Note: This answer is based on general knowledge and not from your uploaded sources.*"
             )
 
-        assistant_message = await retry_async(
-            lambda: save_message(
-                conversation_id=state["conversation_id"],
-                role="assistant",
-                content=answer,
-            )
-        )
+        print("Final Answer: ", answer)
+        print("Saving Turn....")
 
         await retry_async(
             lambda: save_turn(
@@ -36,7 +30,9 @@ async def save_assistant_node(state: ChatState):
                     "answer": answer,
                 },
             )
-        )        
+        )
+
+        print("Saved Turn....")
 
         await event_bus.publish(
             Event(
@@ -44,8 +40,8 @@ async def save_assistant_node(state: ChatState):
                 type=ChatEventType.ANSWER_READY,
                 data={
                     "conversation_id": state["conversation_id"],
-                    "user": state["user_message"],
-                    "assistant": _message_to_dict(assistant_message),
+                    "user": state["message"],
+                    "assistant": answer,
                     "confidence": state.get("confidence"),
                     "model_used": state.get("model_used"),
                     "source": state.get("source"),
@@ -54,6 +50,6 @@ async def save_assistant_node(state: ChatState):
         )
 
         return {
-            "assistant_message": _message_to_dict(assistant_message),
+            "assistant_message": answer,
             "answer": answer,
         }

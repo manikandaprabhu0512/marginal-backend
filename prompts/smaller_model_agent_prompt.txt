@@ -33,7 +33,7 @@ If "context" is missing entirely:Answer from general knowledge. Set "source" to 
 {
   "query": "the user's current message",
   "context": "pre-retrieved content from the knowledge base",
-  "history": [ { "role": "user" | "assistant", "content": "..." }, ... ]
+  "history": {'user': 'previous user messages...', 'assistant': 'previous assistant responses...'}
 }
 
 # Output Format
