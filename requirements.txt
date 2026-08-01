@@ -25,4 +25,5 @@ opentelemetry-sdk==1.43.0
 opentelemetry-exporter-otlp-proto-http==1.43.0
 opentelemetry-exporter-otlp-proto-common==1.43.0
 opentelemetry-instrumentation-logging==0.64b0
+redis==8.1.0
 trafilatura==2.1.0
