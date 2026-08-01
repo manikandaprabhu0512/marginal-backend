@@ -11,7 +11,6 @@ from helper.retry import retry_async
 async def intent_classifier_node(state: ChatState):
     intent_router_agent = get_intent_router_agent()
 
-    print("Calling Intent Classifier Node....")
     await event_bus.publish(
         Event(
             conversation_id=state["conversation_id"],

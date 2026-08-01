@@ -16,7 +16,6 @@ async def save_conversation_node(state: ChatState):
                 "*Note: This answer is based on general knowledge and not from your uploaded sources.*"
             )
 
-        print("Final Answer: ", answer)
         print("Saving Turn....")
 
         await retry_async(

@@ -9,7 +9,6 @@ from tools.retriever_tool import retrieve_context
 
 
 async def retrieve_context_node(state: ChatState):
-    print("Retrieve Context Called....")
     with tracer.start_as_current_span("Retrieve Context") as span:
         await event_bus.publish(
             Event(
@@ -26,13 +25,6 @@ async def retrieve_context_node(state: ChatState):
         span.set_attribute("query", len(state["rewritten_query"]))
         span.set_attribute("context.count", len(context))
         logger.info("Retrieved %s chunks", len(context))
-
-        with open("context.txt", "a", encoding="utf-8") as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write(f"Query: {state['rewritten_query']}\n\n")
-            f.write(f"Length of Context: {len(context)}\n\n")
-            f.write(context)
-            f.write("\n")
 
         redis_config.set(state["conversation_id"], context)
 

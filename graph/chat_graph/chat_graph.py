@@ -54,7 +54,6 @@ builder.add_conditional_edges(
     {
         "save_conversation": "save_conversation",
         "query_rewritter": "query_rewritter",
-        "context_confirmation": "context_confirmation"
     }
 )
 

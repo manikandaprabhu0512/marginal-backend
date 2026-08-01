@@ -7,7 +7,6 @@ from telemetry.instrumentation import tracer
 
 
 async def history_node(state: ChatState):
-        print("History Fetched...")
         with tracer.start_as_current_span("Fetch History"):
             await event_bus.publish(
                 Event(
@@ -20,12 +19,6 @@ async def history_node(state: ChatState):
         history = await retry_async(
             lambda: get_previous_turn(state["conversation_id"])
         )
-
-        print("History: ", history)
-        if(history.user):
-            print("user_message: ", history.user)
-            print("user_message: ", history.user["message"])
-        print("assistant_message: ", history.assistant["answer"])
 
         user_message = (
             history.user.get("message")

@@ -11,7 +11,6 @@ from helper.retry import retry_async
 async def query_rewritter_node(state: ChatState):
     query_rewritter_agent = get_query_rewritter_agent()
 
-    print("Calling Query Rewritter Node....")
     await event_bus.publish(
         Event(
             conversation_id=state["conversation_id"],

@@ -15,7 +15,6 @@ def route_after_filler(state):
 
 def route_after_query_rewritter(state):
 
-    print("Intent", state["query_intent"])
     match state["query_intent"]:
 
         case "meta_conversation":
@@ -25,7 +24,7 @@ def route_after_query_rewritter(state):
             return "query_rewritter"
 
         case "followup_question":
-            return "context_confirmation"
+            return "query_rewritter"
 
         case "topic_correction":
             return "query_rewritter"
