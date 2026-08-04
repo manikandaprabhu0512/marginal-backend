@@ -1,4 +1,3 @@
-# agents/ingestion_query_rewriter.py
 from langchain.agents import create_agent
 
 from models.model import groq_model

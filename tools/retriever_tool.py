@@ -1,6 +1,4 @@
-from langchain.tools import tool
-
-from config.pincone_config import get_vector_store
+from config.pincone_config import RETRIEVAL_THRESHOLD, get_vector_store
 from telemetry.instrumentation import tracer
 
 
@@ -13,9 +11,19 @@ async def retrieve_context(conversation_id: str, query: str, excluded_urls: list
     filter_dict = {"url": {"$nin": excluded_urls}} if excluded_urls else None
 
     with tracer.start_as_current_span("Similarity Search"):
-        docs = await vector_store.asimilarity_search(query=query, k=4, filter=filter_dict)
+        docs = await vector_store.asimilarity_search_with_score(query=query, k=4, filter=filter_dict)
 
-    return "\n\n".join(doc.page_content for doc in docs)
+    print("Query: ", query)
+    
+    filtered_docs = [(document, score) for document, score in docs if score >= RETRIEVAL_THRESHOLD]
+
+    for document, score in docs:
+        print(document.metadata, " : ", score, "\n")
+
+    if not filtered_docs:
+        return ""
+
+    return "\n\n".join(document.page_content for document, _ in filtered_docs)
 
 
 # def make_retriever_tool(conversation_id: str):

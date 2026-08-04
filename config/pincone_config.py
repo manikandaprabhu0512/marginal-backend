@@ -3,6 +3,8 @@ import os
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 
+RETRIEVAL_THRESHOLD = float(os.getenv("RETRIEVAL_THRESHOLD", 0.25))
+
 from models.model import embedding_model
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))

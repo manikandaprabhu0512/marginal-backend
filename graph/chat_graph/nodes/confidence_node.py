@@ -45,16 +45,10 @@ async def confidence_node(state: ChatState):
 
             confidence_span.set_attribute("llm.provider", metadata["model_provider"])
             confidence_span.set_attribute("llm.model", metadata["model_name"])
-            confidence_span.set_attribute("llm.service_tier", metadata["service_tier"])
             confidence_span.set_attribute("llm.input_tokens", usage["prompt_tokens"])
             confidence_span.set_attribute("llm.output_tokens", usage["completion_tokens"])
             confidence_span.set_attribute("llm.total_tokens", usage["total_tokens"])
-            confidence_span.set_attribute(
-                "llm.reasoning_tokens",
-                usage["completion_tokens_details"]["reasoning_tokens"],
-            )
             confidence_span.set_attribute("llm.finish_reason", metadata["finish_reason"])
-            confidence_span.set_attribute("llm.request_id", metadata["id"])
             confidence_span.set_attribute("llm.run_id", ai_message.id)
             confidence_span.set_attribute("llm.agent", ai_message.name)
 

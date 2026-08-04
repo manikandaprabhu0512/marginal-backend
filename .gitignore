@@ -144,3 +144,6 @@ test_codes/
 samples/
 tests/
 tests/chat_graph
+logs/
+.deepeval/
+evaluations/
