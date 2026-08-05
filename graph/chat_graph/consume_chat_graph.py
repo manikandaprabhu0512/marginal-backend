@@ -7,6 +7,7 @@ from graph.events.chat_events import ChatEventType
 
 async def consume_chat_graph(
     conversation_id: str,
+    user_id: str,
     message: str,
     excluded_urls: list[str] | None = None,
     skip_save_user: bool = False,
@@ -20,6 +21,7 @@ async def consume_chat_graph(
     async for event in chat_graph.astream(
         {
             "conversation_id": conversation_id,
+            "user_id": user_id,
             "message": message,
             "excluded_urls": excluded_urls,
             "skip_save_user": skip_save_user,

@@ -9,9 +9,10 @@ from helper.json_parser import parse_agent_json
 from helper.retry import retry_async
 from telemetry.instrumentation import tracer
 
+
 async def title_node(state: GraphState):
     with tracer.start_as_current_span("Title"):
-        conversation = await db_get_conversation(state["conversation_id"])
+        conversation = await db_get_conversation(state["conversation_id"], state["user_id"])
 
         if conversation.title != "Untitled Notebook":
             return {}
@@ -32,7 +33,7 @@ async def title_node(state: GraphState):
 
         with tracer.start_as_current_span("Saving title"):
             await retry_async(
-                lambda: update_conversation_title(state["conversation_id"],title)
+                lambda: update_conversation_title(state["conversation_id"], state["user_id"], title)
             )
 
         await event_bus.publish(

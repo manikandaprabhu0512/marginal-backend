@@ -6,6 +6,8 @@ from db.models import Message
 class ChatState(TypedDict):
     conversation_id: str
 
+    user_id: str
+
     message: str
 
     is_filler: bool

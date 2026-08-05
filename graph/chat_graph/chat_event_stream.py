@@ -10,6 +10,7 @@ from telemetry.metrics import chat_completed
 
 async def chat_event_stream(
     conversation_id: str,
+    user_id: str,
     message: str,
     excluded_urls: list[str] | None = None,
     skip_save_user: bool = False,
@@ -18,6 +19,7 @@ async def chat_event_stream(
         graph_task = asyncio.create_task(
             consume_chat_graph(
                 conversation_id=conversation_id,
+                user_id=user_id,
                 message=message,
                 excluded_urls=excluded_urls,
                 skip_save_user=skip_save_user,

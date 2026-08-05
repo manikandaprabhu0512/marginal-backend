@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import config.cloudinary_config
 import telemetry.instrumentation
 from db.database import init_db
-from router import chat, conversation, ingest
+from router import auth, chat, conversation, ingest
 from telemetry.instrumentation import tracer
 
 
@@ -39,3 +39,4 @@ app.add_middleware(
 app.include_router(ingest.router, tags=["ingestion"])
 app.include_router(chat.router, tags=["chat"])
 app.include_router(conversation.router, tags=["conversation"])
+app.include_router(auth.router, tags=["auth"])

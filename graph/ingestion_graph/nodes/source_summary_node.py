@@ -1,7 +1,7 @@
 import json
 
 from agents.sources_summary_agent import get_sources_summary_agent
-from db.crud import save_message, save_turn
+from db.crud import save_turn
 from graph.event_bus import Event, event_bus
 from graph.events.ingestion_events import IngestionEventType
 from graph.ingestion_graph.state import GraphState
@@ -34,18 +34,11 @@ async def source_summary_node(state: GraphState):
         await retry_async(
             lambda: save_turn(
                 conversation_id=state["conversation_id"],
+                user_id=state["user_id"],
                 events=state["events"],
                 assistant={
                     "answer": source_summary_data["summary"],
                 },
-            )
-        )
-
-        await retry_async(
-            lambda: save_message(
-                conversation_id=state["conversation_id"],
-                role="assistant",
-                content=source_summary_data["summary"],
             )
         )
 

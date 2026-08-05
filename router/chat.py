@@ -1,9 +1,11 @@
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from db.models import User
 from graph.chat_graph.chat_event_resume_stream import chat_event_resume_stream
 from helper.process_chat import process_chat
+from middleware.auth_middleware import verifyToken
 
 
 class ResumeRequest(BaseModel):
@@ -17,9 +19,12 @@ async def send_message(
     message: str = Form(default=""),
     files: list[UploadFile] = File(default=[]),
     excluded_urls: str = Form(default="[]"),
+    current_user: User = Depends(verifyToken)
 ):
+    user_id = str(current_user.id)
+    print("User ID: ", user_id)
     return StreamingResponse(
-        process_chat(conversation_id, message, files, excluded_urls),
+        process_chat(conversation_id, user_id, message, files, excluded_urls),
         media_type="text/event-stream",
         headers = {
             "Cache-Control": "no-cache",
@@ -30,7 +35,7 @@ async def send_message(
     )
 
 @router.post("/conversations/{conversation_id}/resume")
-async def resume_chat_flow(conversation_id: str, body: ResumeRequest):
+async def resume_chat_flow(conversation_id: str, body: ResumeRequest, _: User = Depends(verifyToken)):
     return StreamingResponse(
         chat_event_resume_stream(conversation_id, body.decision),
         media_type="text/event-stream",

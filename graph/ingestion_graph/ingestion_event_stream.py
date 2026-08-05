@@ -1,6 +1,8 @@
 import asyncio
 import time
 
+from beanie import PydanticObjectId
+
 from graph.chat_graph.chat_event_stream import chat_event_stream
 from graph.event_bus import event_bus
 from graph.events.ingestion_events import IngestionEventType
@@ -10,14 +12,14 @@ from telemetry.instrumentation import tracer
 from telemetry.metrics import ingestion_duration
 
 
-async def ingestion_event_stream(conversation_id: str, query: str):
+async def ingestion_event_stream(conversation_id: str, query: str, user_id: PydanticObjectId):
 
     start = time.perf_counter()
 
     try:
         with tracer.start_as_current_span("Ingestion"):
             graph_task = asyncio.create_task(
-                consume_graph(conversation_id, query)
+                consume_graph(conversation_id, query, user_id)
             )
 
             async for event in event_bus.subscribe(conversation_id):

@@ -1,3 +1,5 @@
+from beanie import PydanticObjectId
+
 from db.crud import save_turn
 from graph.chat_graph.chat_state import ChatState
 from graph.event_bus import Event, event_bus
@@ -18,9 +20,11 @@ async def save_conversation_node(state: ChatState):
 
         print("Saving Turn....")
 
+        user_id_obj = PydanticObjectId(state["user_id"])
         await retry_async(
             lambda: save_turn(
                 conversation_id=state["conversation_id"],
+                user_id=user_id_obj,
                 user={
                     "message": state["message"]
                 },

@@ -16,6 +16,7 @@ async def page_vectorizer_node(state: WorkerState):
             return {}
 
         try:
+            print("Page vectorizer....")
             page_result = await retry_async(
                 lambda: process_page(state["page"],state["conversation_id"])
             )

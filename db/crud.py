@@ -1,50 +1,193 @@
 from datetime import datetime, timezone
 
 from beanie import PydanticObjectId
+from beanie.operators import Or, Set
+from fastapi import Depends, HTTPException, status
 
-from db.models import Conversation, Message, ScrapedURLs, Source, Turn
+from db.dtos import LoginRequest, UserSchema
+from db.models import Conversation, Message, ScrapedURLs, Source, Turn, User
+from helper.access_refresh_token_generator import \
+    generateAccessandRefreshTokens
 from helper.file_type import detect_source_type
+from middleware.auth_middleware import verifyToken
 from tools.vectorize_tool import delete_vectorize
 
 
-async def get_or_create_conversation(conversation_id: str, title: str = None) -> Conversation:
-    conv = await Conversation.find_one(Conversation.conversation_id == conversation_id)
+async def db_register_user(body: UserSchema):
+    # 1. Check if User Data is Valid.
+    if not body.name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Name is required"
+        )
+
+    if not body.username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username is required"
+        )
+
+    if not body.email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required"
+        )
+
+    if not body.password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password is required"
+        )
+
+    # 2. Check if User already exists
+    existing_user = await User.find_one(
+        Or(
+            User.username == body.username,
+            User.email == body.email
+        )
+    )
+
+    # 3. If User already exists, raise error
+    if existing_user:
+        if existing_user.email == body.email:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email already registered"
+            )
+
+        if existing_user.username == body.username:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Username already taken"
+            )
+
+    # 4. Hash Password
+    hash_password = User.get_password_hash(body.password)
+
+    # 5. Create User
+    user = User(
+        name=body.name,
+        username=body.username,
+        email=body.email,
+        password=hash_password
+    )
+
+    await user.insert()
+    return user
+
+async def db_login_user(body: LoginRequest):
+    try:
+        # 1. Check if User Data is Valid
+        if not body.username and not body.email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username or email is required"
+            )
+    
+        if not body.password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password is required"
+            )
+    
+        # 2. Check if User exists
+        conditions = []
+        if body.username:
+            conditions.append(User.username == body.username)
+        if body.email:
+            conditions.append(User.email == body.email)
+    
+        existing_user = await User.find_one(Or(*conditions))
+    
+        # 3. If User does not exist, raise error
+        if not existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+        print("Verifying Password")
+        # 4. Verify Password
+        if not User.verify_password(body.password, existing_user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect password"
+            )
+
+        print("Genearating Tokens....")
+        # 5. Generate Access and Refresh Tokens
+        tokens = await generateAccessandRefreshTokens(existing_user)
+
+        print("Tokens: ", tokens)
+        print("Refresh_Token: ", tokens["refresh_token"])
+
+        # 6. Update User
+        user = await existing_user.update(
+            Set({
+                User.refreshToken: tokens["refresh_token"],
+                User.last_activity : datetime.now(timezone.utc)
+            })
+        )
+    
+        return user, tokens
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e
+        )
+
+async def get_or_create_conversation(conversation_id: str, user_id: PydanticObjectId, title: str = "Untitled Notebook") -> Conversation:
+    conv = await Conversation.find_one(
+        Conversation.user_id == user_id,
+        Conversation.conversation_id == conversation_id
+    )
     if not conv:
         conv = Conversation(
+            user_id=user_id,
             conversation_id=conversation_id,
             title=title or "Untitled Notebook"
         )
         await conv.insert()
     return conv
 
-
-async def db_get_conversation(conversation_id: str):
-    conv = await Conversation.find_one(Conversation.conversation_id == conversation_id)
+async def db_get_conversation(conversation_id: str, user_id: PydanticObjectId):
+    conv = await Conversation.find_one(
+        Conversation.user_id == user_id,
+        Conversation.conversation_id == conversation_id
+    )
     if not conv:
         raise ValueError(f"Conversation {conversation_id} not found")
     return conv
 
-
-async def update_conversation_activity(conversation_id: str):
-    conv = await Conversation.find_one(Conversation.conversation_id == conversation_id)
+async def update_conversation_activity(conversation_id: str, user_id: PydanticObjectId):
+    conv = await Conversation.find_one(
+        Conversation.user_id == user_id,
+        Conversation.conversation_id == conversation_id
+    )
     if not conv:
         raise ValueError(f"Conversation {conversation_id} not found")    
     conv.last_activity = datetime.now(timezone.utc)
     await conv.save()
 
-
-async def update_conversation_title(conversation_id: str, title: str):
-    conv = await Conversation.find_one(Conversation.conversation_id == conversation_id)
+async def update_conversation_title(conversation_id: str, user_id: PydanticObjectId, title: str):
+    conv = await Conversation.find_one(
+        Conversation.user_id == user_id,
+        Conversation.conversation_id == conversation_id
+    )
     if not conv:
         raise ValueError(f"Conversation {conversation_id} not found")
     conv.title = title
     conv.last_activity = datetime.now(timezone.utc)
     await conv.save()
-    return conv
+    return {
+        "title": conv.title
+    }
 
-
-async def list_conversations() -> list[dict]:
-    conversations = await Conversation.find_all().sort("-last_activity").limit(3).to_list()
+async def list_conversations(user_id: PydanticObjectId) -> list[dict]:
+    conversations = await Conversation.find(
+        Conversation.user_id == user_id
+    ).sort("-last_activity").to_list()
     return [
         {
             "conversation_id": c.conversation_id,
@@ -56,16 +199,6 @@ async def list_conversations() -> list[dict]:
         for c in conversations
     ]
 
-
-async def get_history(conversation_id: str) -> list[dict]:
-    messages = await (
-        Message.find(Message.conversation_id == conversation_id)
-        .sort("-created_at")
-        .limit(10)
-        .to_list()
-    )
-    return [{"role": m.role, "content": m.content} for m in messages]
-
 async def get_previous_turn(conversation_id: str) -> Turn | None:
     return await (
         Turn.find(Turn.conversation_id == conversation_id)
@@ -73,25 +206,14 @@ async def get_previous_turn(conversation_id: str) -> Turn | None:
         .first_or_none()
     )
 
-
-async def save_message(conversation_id: str, role: str, content: dict, file_url: str | None = None):
-    message = await Message(
-        conversation_id=conversation_id,
-        role=role,
-        content=content,
-        file_url=file_url,
-    ).insert()
-    await update_conversation_activity(conversation_id)
-    return message
-
-async def save_turn(conversation_id: str, events: list[dict],  user: dict | None = None, assistant: dict | None = None):
+async def save_turn(conversation_id: str, user_id: PydanticObjectId, events: list[dict],  user: dict | None = None, assistant: dict | None = None):
     turn = await Turn(
         conversation_id=conversation_id,
         user=user,
         events=events or [],
         assistant=assistant,
     ).insert()
-    await update_conversation_activity(conversation_id)
+    await update_conversation_activity(conversation_id, user_id)
     return turn
 
 

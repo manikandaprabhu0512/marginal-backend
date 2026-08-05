@@ -40,6 +40,7 @@ async def process_urls_node(state: GraphState):
     
         sem = asyncio.Semaphore(semaphore_batches)
 
+        print("Processing URL....")
         async def process(url):
             async with sem:
                 return await process_url_graph.ainvoke(

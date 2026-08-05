@@ -1,22 +1,23 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from db.crud import get_or_create_conversation
+from db.models import User
 from graph.ingestion_graph.ingestion_event_stream import ingestion_event_stream
+from middleware.auth_middleware import verifyToken
 
 router = APIRouter()
-
 
 class FirstQueryRequest(BaseModel):
     query: str
 
 @router.post("/conversations/{conversation_id}/first-query")
-async def first_query(conversation_id: str, body: FirstQueryRequest):
-    await get_or_create_conversation(conversation_id)
+async def first_query(conversation_id: str, body: FirstQueryRequest, current_user: User = Depends(verifyToken)):
+    await get_or_create_conversation(conversation_id, current_user.id)
 
     return StreamingResponse(
-        ingestion_event_stream(conversation_id, body.query),
+        ingestion_event_stream(conversation_id, body.query, current_user.id),
         media_type="text/event-stream",
         headers = {
             "Cache-Control": "no-cache",
@@ -25,17 +26,3 @@ async def first_query(conversation_id: str, body: FirstQueryRequest):
             "Access-Control-Allow-Origin": "*",
         }
     )
-    # ingestion_result = await run_ingestion(conversation_id, body.query)
-    # chat_result = await run_chat(conversation_id, body.query)
-
-    # return {
-    #     "title": ingestion_result["title"],
-    #     "answer": chat_result["assistant"].content,
-    #     "stats": {
-    #         "urls_found": ingestion_result["urls_found"],
-    #         "urls_stored": ingestion_result["urls_stored"],
-    #         "sources": ingestion_result["sources"]
-    #     },
-    #     "confidence": chat_result.get("confidence"),
-    # }
-
