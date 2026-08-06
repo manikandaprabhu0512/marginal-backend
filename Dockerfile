@@ -22,6 +22,7 @@ COPY flows ./flows
 COPY graph ./graph
 COPY helper ./helper
 COPY mcp_setup ./mcp_setup
+COPY middleware ./middleware
 COPY models ./models
 COPY prompts ./prompts
 COPY router ./router

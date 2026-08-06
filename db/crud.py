@@ -133,8 +133,8 @@ async def db_login_user(body: LoginRequest):
     
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
 
 async def get_or_create_conversation(conversation_id: str, user_id: PydanticObjectId, title: str = "Untitled Notebook") -> Conversation:
