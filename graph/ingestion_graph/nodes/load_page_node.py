@@ -11,7 +11,6 @@ from telemetry.instrumentation import tracer
 async def load_page_node(state: WorkerState):
     with tracer.start_as_current_span("Page load"):
         try:
-            print("Page Loading...")
             start_time = time.perf_counter()
             await event_bus.publish(
                 Event(

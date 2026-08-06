@@ -23,7 +23,6 @@ async def smaller_model_node(state: ChatState):
         with tracer.start_as_current_span("Smaller Agent"):
             smaller_agent = await get_smaller_model_agent()
 
-        print("Smaller Agent Created....")
         input_payload = json.dumps(
             {
                 "query": state["message"],
@@ -32,7 +31,6 @@ async def smaller_model_node(state: ChatState):
             }
         )
 
-        print("Generating answer....")
         with tracer.start_as_current_span("Generating answer") as smaller_span:
             result = await retry_async(
                 lambda: smaller_agent.ainvoke(
@@ -40,8 +38,6 @@ async def smaller_model_node(state: ChatState):
                 )
             )
 
-            print("Answer Generated....")
-            print("Answer: ", result)
             ai_message = result["messages"][-1]
             metadata = ai_message.response_metadata
             usage = metadata["token_usage"]

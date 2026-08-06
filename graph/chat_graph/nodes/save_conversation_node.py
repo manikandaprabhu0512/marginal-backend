@@ -18,8 +18,6 @@ async def save_conversation_node(state: ChatState):
                 "*Note: This answer is based on general knowledge and not from your uploaded sources.*"
             )
 
-        print("Saving Turn....")
-
         user_id_obj = PydanticObjectId(state["user_id"])
         await retry_async(
             lambda: save_turn(
@@ -34,8 +32,6 @@ async def save_conversation_node(state: ChatState):
                 },
             )
         )
-
-        print("Saved Turn....")
 
         await event_bus.publish(
             Event(

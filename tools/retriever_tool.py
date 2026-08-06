@@ -13,12 +13,7 @@ async def retrieve_context(conversation_id: str, query: str, excluded_urls: list
     with tracer.start_as_current_span("Similarity Search"):
         docs = await vector_store.asimilarity_search_with_score(query=query, k=4, filter=filter_dict)
 
-    print("Query: ", query)
-    
     filtered_docs = [(document, score) for document, score in docs if score >= RETRIEVAL_THRESHOLD]
-
-    for document, score in docs:
-        print(document.metadata, " : ", score, "\n")
 
     if not filtered_docs:
         return ""

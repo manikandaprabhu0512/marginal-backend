@@ -45,7 +45,6 @@ async def search_urls(query: str) -> list[dict]:
     for organic in results:
         search_data.extend(organic)
         
-    print(len(search_data))
 
     SKIP_DOMAINS = [
         "youtube.com", "youtu.be", "twitter.com", "x.com",

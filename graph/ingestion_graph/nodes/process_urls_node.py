@@ -40,7 +40,6 @@ async def process_urls_node(state: GraphState):
     
         sem = asyncio.Semaphore(semaphore_batches)
 
-        print("Processing URL....")
         async def process(url):
             async with sem:
                 return await process_url_graph.ainvoke(
@@ -56,8 +55,6 @@ async def process_urls_node(state: GraphState):
             return_exceptions=True,
         )
 
-        print("URL Processed....")
-
         # await crawler.close()
         saved_urls = []
         titles = []
@@ -67,11 +64,8 @@ async def process_urls_node(state: GraphState):
 
 
             if isinstance(item, Exception):
-                print("Item: ", item)
                 continue
 
-            print(item.keys())
-            print("Events: ", item["events"])
             events.append(item["events"])
             if item["status"] == WorkerStatus.SUCCESS:
                 saved_urls.append(item["url"])

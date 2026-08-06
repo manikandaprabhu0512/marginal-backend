@@ -32,9 +32,6 @@ async def query_rewritter_node(state: ChatState):
 
     data = parse_agent_json(result["messages"][-1].content)
 
-    print("Query: ", state["message"])
-    print("Data:", data)
-
     return {
         "rewritten_query": data["rewritten_query"]
     }

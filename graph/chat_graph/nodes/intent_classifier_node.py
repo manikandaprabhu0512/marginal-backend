@@ -31,10 +31,7 @@ async def intent_classifier_node(state: ChatState):
     )
 
     data = parse_agent_json(result["messages"][-1].content)
-
-    print("Query: ", state["message"])
-    print("Data:", data)
-
+    
     return {
         "query_intent": data["intent_type"],
         "answer": data["direct_answer"]

@@ -106,7 +106,6 @@ async def db_login_user(body: LoginRequest):
                 detail="User not found"
             )
 
-        print("Verifying Password")
         # 4. Verify Password
         if not User.verify_password(body.password, existing_user.password):
             raise HTTPException(
@@ -114,12 +113,8 @@ async def db_login_user(body: LoginRequest):
                 detail="Incorrect password"
             )
 
-        print("Genearating Tokens....")
         # 5. Generate Access and Refresh Tokens
         tokens = await generateAccessandRefreshTokens(existing_user)
-
-        print("Tokens: ", tokens)
-        print("Refresh_Token: ", tokens["refresh_token"])
 
         # 6. Update User
         user = await existing_user.update(
@@ -184,20 +179,48 @@ async def update_conversation_title(conversation_id: str, user_id: PydanticObjec
         "title": conv.title
     }
 
-async def list_conversations(user_id: PydanticObjectId) -> list[dict]:
-    conversations = await Conversation.find(
+async def list_conversations(
+    user_id: PydanticObjectId,
+    cursor: datetime | None = None,
+    limit: int = 5,
+) -> dict:
+    query = Conversation.find(
         Conversation.user_id == user_id
-    ).sort("-last_activity").to_list()
-    return [
-        {
-            "conversation_id": c.conversation_id,
-            "title": c.title,
-            "created_at": c.created_at,
-            "last_activity": c.last_activity,
-            "source_count": c.source_count,
-        }
-        for c in conversations
-    ]
+    )
+
+    if cursor is not None:
+        query = query.find(
+            Conversation.last_activity < cursor
+        )
+
+    conversations = (
+        await query
+        .sort("-last_activity")
+        .limit(limit)
+        .to_list()
+    )
+
+    next_cursor = None
+    has_next = False
+
+    if len(conversations) == limit:
+        next_cursor = conversations[-1].last_activity.isoformat()
+        has_next = True
+
+    return {
+        "items": [
+            {
+                "conversation_id": conversation.conversation_id,
+                "title": conversation.title,
+                "created_at": conversation.created_at.isoformat(),
+                "last_activity": conversation.last_activity.isoformat(),
+                "source_count": conversation.source_count,
+            }
+            for conversation in conversations
+        ],
+        "next_cursor": next_cursor,
+        "has_next": has_next,
+    }
 
 async def get_previous_turn(conversation_id: str) -> Turn | None:
     return await (
@@ -215,7 +238,6 @@ async def save_turn(conversation_id: str, user_id: PydanticObjectId, events: lis
     ).insert()
     await update_conversation_activity(conversation_id, user_id)
     return turn
-
 
 async def save_sources(conversation_id: str, sources: list[dict]):
     docs = [
@@ -264,22 +286,55 @@ async def get_messages(conversation_id: str) -> list[dict]:
         for m in messages
     ]
 
-async def get_turns(conversation_id: str) -> list[dict]:
-    turns = await (
-        Turn.find(Turn.conversation_id == conversation_id)
-        .sort("+created_at")
+async def get_turns(
+    conversation_id: str,
+    cursor: datetime | None = None,
+    limit: int = 5,
+) -> dict:
+
+    query = Turn.find(
+        Turn.conversation_id == conversation_id
+    )
+
+    if cursor is not None:
+        query = query.find(
+            Turn.created_at < cursor
+        )
+
+    turns = (
+        await query
+        .sort("-created_at")
+        .limit(limit + 1)
         .to_list()
     )
-    return [
-        {
-            "id": str(t.id),
-            "user": t.user,
-            "events": t.events,
-            "assistant": t.assistant,
-            "created_at": t.created_at,
-        }
-        for t in turns
-    ]
+
+    has_next = len(turns) > limit
+
+    if has_next:
+        turns = turns[:limit]
+
+    next_cursor = (
+        turns[-1].created_at.isoformat()
+        if has_next
+        else None
+    )
+
+    turns.reverse()
+
+    return {
+        "items": [
+            {
+                "id": str(t.id),
+                "user": t.user,
+                "events": t.events,
+                "assistant": t.assistant,
+                "created_at": t.created_at.isoformat(),
+            }
+            for t in turns
+        ],
+        "next_cursor": next_cursor,
+        "has_next": has_next,
+    }
 
 async def update_source_count(conversation_id: str, count: int):
     

@@ -47,21 +47,16 @@ async def vectorize_page(
         f"{hashlib.md5(url.encode()).hexdigest()}-{i}"
         for i in range(len(split_docs))
     ]
-    print("Vector IDs Generated...")
 
     texts = [doc.page_content for doc in split_docs]
-    print("Texts Extracted...")
 
     # ==========================================================
     # STEP 1 : EMBEDDING
     # ==========================================================
 
-    print("Embedding Model Loaded...")
-
     start = time.perf_counter()
 
     embeddings = await embedding_model.aembed_documents(texts)
-    print("Text Embedded...")
 
     embedding_time = time.perf_counter() - start
 

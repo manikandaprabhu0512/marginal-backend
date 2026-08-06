@@ -41,7 +41,6 @@ from bs4 import BeautifulSoup
 async def web_loader_tool(link: str):
     """Fetch and extract clean text content from a given URL."""
     try:
-        print("Fetching content...")
         link = link.rstrip(".,;:!?)]}\"'")
         if link.endswith("."):
             link = link[:-1]
@@ -54,7 +53,6 @@ async def web_loader_tool(link: str):
             tag.decompose()
         text = soup.get_text(separator=" ")
         clean_text = re.sub(r'\s+', ' ', text).strip()
-        print("Content fetched...")
         return clean_text
 
     except Exception as e:

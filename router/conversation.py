@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 
 from db.crud import (db_get_conversation, delete_source_db,
@@ -22,8 +24,16 @@ class CreateConversationRequest(BaseModel):
     title: str = "Untitled Notebook"
 
 @router.get("/conversations")
-async def get_conversation(current_user: User = Depends(verifyToken)):
-    return await list_conversations(current_user.id)
+async def get_conversation(
+    current_user: User = Depends(verifyToken),
+    cursor: datetime | None = Query(default=None),
+    limit: int = Query(default=5, ge=1, le=100),
+):
+    return await list_conversations(
+        user_id=current_user.id,
+        cursor=cursor,
+        limit=limit,
+    )
 
 @router.post("/conversations", status_code=status.HTTP_201_CREATED)
 async def create_notebook(body: CreateConversationRequest, current_user: User = Depends(verifyToken)):
@@ -41,11 +51,21 @@ async def get_notebook(conversation_id: str, current_user: User = Depends(verify
     return conv
 
 @router.get("/conversations/{conversation_id}/turns", status_code=status.HTTP_200_OK)
-async def get_conversation_turns(conversation_id: str, _: User = Depends(verifyToken)):
-    return await get_turns(conversation_id)
+async def get_conversation_turns(
+    conversation_id: str,
+    cursor: datetime | None = Query(default=None),
+    limit: int = Query(default=5, ge=1, le=100), 
+    _: User = Depends(verifyToken)
+):
+    return await get_turns(
+        conversation_id,
+        cursor=cursor,
+        limit=limit
+    )
 
 @router.patch("/conversations/{conversation_id}/title", status_code=status.HTTP_200_OK)
 async def update_title(conversation_id: str, body: TitleRequest, current_user: User = Depends(verifyToken)):
+    
     return await update_conversation_title(conversation_id, current_user.id, body.title)
 
 @router.get("/conversations/{conversation_id}/sources")

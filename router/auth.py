@@ -40,6 +40,13 @@ async def login_user(body: LoginRequest, response: Response):
 
     return user
 
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout_user(response: Response, _: User = Depends(verifyToken)):
+    response.delete_cookie("accessToken")
+    response.delete_cookie("refreshToken")
+
+    return {"status": "ok"}
+
 @router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_user(current_user: User = Depends(verifyToken)):
     return current_user

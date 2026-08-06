@@ -22,7 +22,6 @@ async def send_message(
     current_user: User = Depends(verifyToken)
 ):
     user_id = str(current_user.id)
-    print("User ID: ", user_id)
     return StreamingResponse(
         process_chat(conversation_id, user_id, message, files, excluded_urls),
         media_type="text/event-stream",

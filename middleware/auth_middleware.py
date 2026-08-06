@@ -27,21 +27,13 @@ async def verifyToken(request: Request):
 
         decodedToken = jwt.decode(access_token, secret, algorithms=[algorithm])
 
-        print(decodedToken)
-        print(decodedToken["_id"])
-        print(decodedToken["username"])
-
-        print("Finding User...")
         user = await User.get(decodedToken["_id"])
-        print("User Found...")
 
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User doesn't exists. Invalid Action."
             )
-
-        print(user)
 
         return user
 
